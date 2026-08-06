@@ -1,5 +1,6 @@
 # Skills deste harness
 
-- **karpathy-guidelines** — vendorizada em `.claude/skills/karpathy-guidelines.md` (conteúdo completo do princípio de alterações cirúrgicas). Instalar a skill completa via `npx skills add szkocot/andrej-karpathy-skills --skill karpathy-guidelines`.
-- **open-code-review** — referência vendorizada em `.claude/skills/open-code-review.md`. Instalar a ferramenta via `npx skills add alibaba/open-code-review --skill open-code-review`.
+- **get-shit-done (GSD)** — framework completo (plugin) vendorizado em `vendor/get-shit-done/` a partir de `gsd-build/get-shit-done`. Inclui `commands/`, `agents/`, `hooks/`, `workflows/`, `templates/`, `references/`, `contexts/`, `bin/` e `sdk/`. Instalação normal via `npx @opengsd/gsd-core@latest` (ver `CLAUDE.md`); o conteúdo vendorizado serve de referência e backup local.
+- **karpathy-guidelines** — vendorizada com conteúdo completo em `.claude/skills/karpathy-guidelines.md` (fonte: `szkocot/andrej-karpathy-skills`). Instalar a skill completa também via `npx skills add https://github.com/szkocot/andrej-karpathy-skills --skill karpathy-guidelines`.
+- **open-code-review** — vendorizada com conteúdo completo em `.claude/skills/open-code-review.md` (modo `ocr review`) e `.claude/skills/open-code-review-delegate.md` (modo `ocr delegate`, sem LLM próprio). Fonte: `alibaba/open-code-review`. Instalar a ferramenta via `npm install -g @alibaba-group/open-code-review`.
 - **responsive-design** — vendorizada em `.claude/skills/responsive-design.md`, adaptada de `mindrally/skills` e `manutej/luxor-claude-marketplace`.

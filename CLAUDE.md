@@ -26,6 +26,7 @@ Regra de desempate: prefira sempre a opção mais leve (`/gsd-quick` antes do fl
 
 ## Framework principal: GSD
 - Fonte oficial: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (o link antigo `gsd-build/get-shit-done` está migrado/arquivado — use este).
+- **Cópia local vendorizada:** conteúdo completo do plugin (commands, agents, hooks, workflows, templates, references, sdk, bin) em `vendor/get-shit-done/` (fonte `gsd-build/get-shit-done`). Usar como referência/backup — para instalação funcional siga o fluxo npx abaixo.
 - **Instalação correta (via npx, funciona em Windows/Mac/Linux):**
   ```powershell
   npx @opengsd/gsd-core@latest
@@ -46,7 +47,7 @@ Regras obrigatórias em toda alteração:
 - Se notar código morto não relacionado, **mencione**, não apague sem avisar.
 
 ## Revisão de código: Open Code Review (OCR)
-Referência completa vendorizada em `.claude/skills/open-code-review.md`. Instalar via `npm install -g @alibaba-group/open-code-review` (comando `ocr`).
+Referência completa vendorizada em `.claude/skills/open-code-review.md` (modo `ocr review`) e `.claude/skills/open-code-review-delegate.md` (modo `ocr delegate`). Instalar via `npm install -g @alibaba-group/open-code-review` (comando `ocr`).
 
 - CLI que combina engenharia determinística (seleção/agrupamento de arquivos) com um agente LLM para revisão.
 - **Delegation Mode** (`ocr delegate`): deixa o próprio Claude Code fazer a revisão, sem precisar configurar API key separada para o OCR.
