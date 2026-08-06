@@ -58,7 +58,7 @@ Referência completa vendorizada em `.claude/skills/open-code-review/SKILL.md` (
 - `.claude/commands/` — `run-tests.md` define o `/run-tests`.
 - `.claude/agents/` — `code-reviewer.md`.
 - `.claude/rules/` — `coding.md`, `testing.md`, `deploy.md` (Supabase + Vercel).
-- `.claude/skills/` — `karpathy-guidelines.md`, `open-code-review.md`, `responsive-design.md` (todas vendorizadas com conteúdo completo).
+- `.claude/skills/` — `karpathy-guidelines/SKILL.md`, `open-code-review/SKILL.md` (+ `references/delegate.md`), `responsive-design/SKILL.md` (todas vendorizadas com conteúdo completo, no formato oficial de pasta por skill com `SKILL.md`).
 - `docs/` — specs GSD do próprio harness (não dos projetos individuais, que têm os próprios `docs/`).
 
 ## Stack padrão
