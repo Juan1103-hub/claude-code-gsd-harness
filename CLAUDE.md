@@ -1,6 +1,10 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # CLAUDE.md — Harness GSD-first para Projetos Web
 
-> Este repositório é um **template/harness**, não um produto. Todo projeto real vive em `projects/<nome-do-projeto>/`, autocontido (próprio `package.json`, `src/`, `docs/`).
+> Este repositório é um **template/harness**, não um produto. Na raiz do harness **não existe** `package.json` nem build próprio. Todo projeto real vive em `projects/<nome-do-projeto>/`, autocontido (próprio `package.json`, `src/`, `docs/`) — rodar build/test sempre dentro da pasta do projeto (`cd projects/<nome>`), nunca na raiz.
 
 ## Perfil do usuário
 - O usuário faz **vibe coding**: prefere descrever a ideia em linguagem natural e deixar o agente conduzir os detalhes técnicos, em vez de escrever specs formais linha a linha.
@@ -19,6 +23,7 @@ Antes de agir em qualquer pedido, classifique-o e siga a regra correspondente **
 | Funcionalidade grande / fase nova do roadmap | Múltiplas telas, múltiplos componentes, dura mais de uma sessão | `/gsd-discuss-phase N` → `/gsd-plan-phase N` → `/gsd-execute-phase N` |
 | Projeto novo do zero | Usuário pede para criar um app/projeto novo | `/gsd-new-project` (se já existir código, rodar `/gsd-map-codebase` antes) |
 | Qualquer edição em código já existente | Sempre, independente do comando GSD escolhido acima | Aplicar `.claude/skills/karpathy-guidelines/SKILL.md` automaticamente |
+| Pedido sem encaixe claro nas categorias acima | — | Default seguro: `/gsd-progress` (ver `docs/PROJECT.md` do projeto ativo). Ajustar conforme o pedido depois de ler o projeto. |
 | Qualquer componente/tela de UI nova ou alterada | Envolve HTML/JSX/CSS/Tailwind | Aplicar `.claude/skills/responsive-design/SKILL.md` automaticamente |
 | Antes de considerar qualquer tarefa "concluída"/pronta para merge | Sempre, como último passo | `.claude/skills/open-code-review/SKILL.md` (`ocr review` ou `ocr delegate`) + agente `code-reviewer` + `/gsd-verify-work` + `/gsd-ship` |
 
