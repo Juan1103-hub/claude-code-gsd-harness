@@ -15,50 +15,34 @@ Antes de agir em qualquer pedido, classifique-o e siga a regra correspondente **
 |---|---|---|
 | Ajuste pontual, correção, componente único | Pedido pequeno, escopo claro, cabe numa sessão | `/gsd-quick` (padrão) |
 | Ajuste pontual mas com regra de negócio/lógica sensível | Envolve dados, permissões, cálculo crítico | `/gsd-quick --validate` |
-| Pedido vago, só uma frase, sem certeza do escopo | Usuário descreve em linguagem natural, sem estrutura | `/gsd-progress --do "<pedido do usuário>"` — deixa o próprio GSD decidir o comando final |
+| Pedido vago, só uma frase, sem certeza do escopo | Usuário descreve em linguagem natural, sem estrutura | `/gsd-progress --do "<pedido do usuário>"` |
 | Funcionalidade grande / fase nova inteira | Múltiplas telas, múltiplos componentes, dura mais de uma sessão | `/gsd-phase "<descrição>"` (registra no ROADMAP.md) |
-| Projeto novo do zero | Usuário pede para criar um app/projeto novo | `/gsd-new-project` (ou fluxo completo: spec-phase → discuss-phase → plan-phase → execute-phase) |
-| Qualquer edição em código já existente | Sempre, independente do comando GSD escolhido acima | Aplicar `karpathy-guidelines` automaticamente (alterações cirúrgicas) |
-| Qualquer componente/tela de UI nova ou alterada | Envolve HTML/JSX/CSS/Tailwind | Aplicar `.claude/skills/responsive-design.md` automaticamente |
-| Antes de considerar qualquer tarefa "concluída"/pronta para merge | Sempre, como último passo | Rodar `open-code-review` (triagem) + `/gsd-verify-work` (checklist GSD) |
+| Projeto novo do zero | Usuário pede para criar um app/projeto novo | `/gsd-new-project` (pipeline completo) |
+| Qualquer edição em código já existente | Sempre | `.claude/skills/karpathy-guidelines.md` automaticamente |
+| Qualquer componente/tela de UI nova ou alterada | Envolve HTML/JSX/CSS/Tailwind | `.claude/skills/responsive-design.md` automaticamente |
+| Antes de considerar qualquer tarefa "concluída" | Sempre, como último passo | `.claude/skills/open-code-review.md` + agente `code-reviewer` + `/gsd-verify-work` |
 
-Regra de desempate: se o pedido parecer se encaixar em mais de uma linha, prefira sempre a opção mais leve (`/gsd-quick` antes de `/gsd-phase`) — só escale para o pipeline completo se `/gsd-quick` deixar claro que o escopo é maior do que parecia.
+Regra de desempate: prefira sempre a opção mais leve (`/gsd-quick` antes de `/gsd-phase`) — só escale se o escopo real aparecer maior durante a execução.
 
 ## Framework principal: GSD
-- Fonte oficial: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (o repositório antigo `gsd-build/get-shit-done` foi migrado para este).
+- Fonte oficial: [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) (o link `gsd-build/get-shit-done` está migrado/arquivado — use este).
 - Fluxo completo: `new-project` → `plan-phase` → `execute-phase` → `verify-work`.
 - Fluxo rápido: `/gsd-quick` (ver tabela de roteamento acima).
-- Objetivo: manter contexto limpo por tarefa (evitar "context rot"), sem o overhead de specs formais pesadas.
-
-## Disciplina de código: karpathy-guidelines
-Instalar via: `npx skills add https://github.com/szkocot/andrej-karpathy-skills --skill karpathy-guidelines`
-
-Regras obrigatórias em toda alteração:
-- Alterações cirúrgicas: toque apenas no que for necessário.
-- Não tente "melhorar" código ou comentários adjacentes não relacionados ao pedido.
-- Não refatore o que não está quebrado.
-- Adapte-se ao estilo existente do código, mesmo que você faria diferente.
-- Se notar código morto não relacionado, **mencione**, não apague sem avisar.
-
-## Revisão de código: open-code-review (OCR)
-Instalar via: `npx skills add alibaba/open-code-review --skill open-code-review` (ou plugin `/plugin install open-code-review@open-code-review`).
-
-- CLI Go que combina regras determinísticas (NPE, thread-safety, XSS, SQL injection) com revisão via LLM.
-- Exige configurar endpoint de LLM próprio (Anthropic ou OpenAI-compatível) — gera custo de tokens por review.
-- **Regra do harness:** nenhum merge sem passar por OCR primeiro (triagem automática) e depois revisão humana/Claude Code (gate final).
 
 ## Onde cada coisa mora
-- `projects/<nome>/` — cada projeto real, autocontido (próprio `package.json`, `src/`, `docs/`).
-- `.claude/rules/` — `coding.md`, `testing.md`, `deploy.md` (Supabase + Vercel), `responsive.md` (mobile-first).
-- `.claude/skills/` — referências às skills instaláveis (`karpathy-guidelines`, `open-code-review`).
-- `docs/` — specs GSD do próprio harness (não dos projetos individuais, que têm os próprios `docs/`).
+- `projects/<nome>/` — cada projeto real, autocontido.
+- `.claude/commands/` — `run-tests.md` define o `/run-tests`.
+- `.claude/agents/` — `code-reviewer.md`.
+- `.claude/rules/` — `coding.md`, `testing.md`, `deploy.md` (Supabase + Vercel).
+- `.claude/skills/` — `karpathy-guidelines.md`, `open-code-review.md`, `responsive-design.md` (todas vendorizadas com conteúdo completo, não só link de instalação).
+- `docs/` — specs GSD do próprio harness.
 
 ## Stack padrão
-React + Next.js + TypeScript + Tailwind CSS, com shadcn/ui (componentes), Lucide React (ícones), Framer Motion (animações). HTML/JS puro sem framework **apenas** quando pedido explicitamente no prompt.
+React + Next.js + TypeScript + Tailwind CSS, shadcn/ui, Lucide React, Framer Motion. HTML/JS puro sem framework **apenas** se pedido explicitamente.
 
 ## Fluxo recomendado
-1. Classificar o pedido pela tabela de "Roteamento automático" e escolher o comando certo, sem perguntar ao usuário.
-2. Se for projeto/fase nova: registrar em `docs/PROJECT.md`, `docs/DECISIONS.md`, `docs/ROADMAP.md` antes de codar.
-3. Implementar seguindo `karpathy-guidelines` (alterações cirúrgicas) e `.claude/skills/responsive-design.md` (se envolver UI).
-4. `open-code-review` — triagem automática antes do merge.
-5. `/gsd-verify-work` — checklist final + revisão humana.
+1. Classificar o pedido pela tabela de "Roteamento automático".
+2. Se projeto/fase nova: registrar em `docs/PROJECT.md`, `docs/DECISIONS.md`, `docs/ROADMAP.md`.
+3. Implementar seguindo `karpathy-guidelines.md` e `responsive-design.md` (se UI).
+4. `open-code-review.md` + agente `code-reviewer` antes do merge.
+5. `/gsd-verify-work` (inclui `/run-tests`).
