@@ -1,3 +1,8 @@
+---
+name: responsive-design
+description: Diretrizes de design responsivo mobile-first para Next.js + Tailwind + shadcn/ui. Use ao criar ou alterar qualquer componente, tela ou layout, para garantir que funcione bem em telas pequenas (breakpoints, touch targets, drawer em mobile, imagens responsivas).
+---
+
 # responsive-design (skill vendorizada)
 
 > Adaptada de `mindrally/skills:responsive-design` e `manutej/luxor-claude-marketplace:mobile-design`, para Next.js + Tailwind + shadcn/ui.

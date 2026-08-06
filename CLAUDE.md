@@ -18,9 +18,9 @@ Antes de agir em qualquer pedido, classifique-o e siga a regra correspondente **
 | Pedido vago, só uma frase, sem certeza do escopo | Usuário descreve em linguagem natural, sem estrutura | `/gsd-progress --next` (ou `--do "<pedido>"` se disponível na versão instalada) |
 | Funcionalidade grande / fase nova do roadmap | Múltiplas telas, múltiplos componentes, dura mais de uma sessão | `/gsd-discuss-phase N` → `/gsd-plan-phase N` → `/gsd-execute-phase N` |
 | Projeto novo do zero | Usuário pede para criar um app/projeto novo | `/gsd-new-project` (se já existir código, rodar `/gsd-map-codebase` antes) |
-| Qualquer edição em código já existente | Sempre, independente do comando GSD escolhido acima | Aplicar `.claude/skills/karpathy-guidelines.md` automaticamente |
-| Qualquer componente/tela de UI nova ou alterada | Envolve HTML/JSX/CSS/Tailwind | Aplicar `.claude/skills/responsive-design.md` automaticamente |
-| Antes de considerar qualquer tarefa "concluída"/pronta para merge | Sempre, como último passo | `.claude/skills/open-code-review.md` (`ocr review` ou `ocr delegate`) + agente `code-reviewer` + `/gsd-verify-work` + `/gsd-ship` |
+| Qualquer edição em código já existente | Sempre, independente do comando GSD escolhido acima | Aplicar `.claude/skills/karpathy-guidelines/SKILL.md` automaticamente |
+| Qualquer componente/tela de UI nova ou alterada | Envolve HTML/JSX/CSS/Tailwind | Aplicar `.claude/skills/responsive-design/SKILL.md` automaticamente |
+| Antes de considerar qualquer tarefa "concluída"/pronta para merge | Sempre, como último passo | `.claude/skills/open-code-review/SKILL.md` (`ocr review` ou `ocr delegate`) + agente `code-reviewer` + `/gsd-verify-work` + `/gsd-ship` |
 
 Regra de desempate: prefira sempre a opção mais leve (`/gsd-quick` antes do fluxo completo de fase) — só escale se o escopo real aparecer maior durante a execução.
 
@@ -37,7 +37,7 @@ Regra de desempate: prefira sempre a opção mais leve (`/gsd-quick` antes do fl
 - Objetivo: manter contexto limpo por tarefa (evitar "context rot"), sem o overhead de specs formais pesadas.
 
 ## Disciplina de código: karpathy-guidelines
-Conteúdo vendorizado em `.claude/skills/karpathy-guidelines.md`. Instalação opcional adicional: `npx skills add https://github.com/szkocot/andrej-karpathy-skills --skill karpathy-guidelines`.
+Conteúdo vendorizado em `.claude/skills/karpathy-guidelines/SKILL.md`. Instalação opcional adicional: `npx skills add https://github.com/szkocot/andrej-karpathy-skills --skill karpathy-guidelines`.
 
 Regras obrigatórias em toda alteração:
 - Alterações cirúrgicas: toque apenas no que for necessário.
@@ -47,7 +47,7 @@ Regras obrigatórias em toda alteração:
 - Se notar código morto não relacionado, **mencione**, não apague sem avisar.
 
 ## Revisão de código: Open Code Review (OCR)
-Referência completa vendorizada em `.claude/skills/open-code-review.md` (modo `ocr review`) e `.claude/skills/open-code-review-delegate.md` (modo `ocr delegate`). Instalar via `npm install -g @alibaba-group/open-code-review` (comando `ocr`).
+Referência completa vendorizada em `.claude/skills/open-code-review/SKILL.md` (modo `ocr review`) e `.claude/skills/open-code-review/references/delegate.md` (modo `ocr delegate`). Instalar via `npm install -g @alibaba-group/open-code-review` (comando `ocr`).
 
 - CLI que combina engenharia determinística (seleção/agrupamento de arquivos) com um agente LLM para revisão.
 - **Delegation Mode** (`ocr delegate`): deixa o próprio Claude Code fazer a revisão, sem precisar configurar API key separada para o OCR.
