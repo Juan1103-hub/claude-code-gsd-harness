@@ -71,5 +71,22 @@ Estudo bíblico profundo e personalizado num único lugar — contexto, originai
 | Supabase para dados/auth | Funda grupos e compartilhamento desde já; padrão do harness | — Pending |
 | Individual + grupos no v1 | Diferenciação social do deep-study; compartilhamento desde o início | — Pending |
 
+## Evolution
+
+Este documento evolui nas transições de fase e nos marcos.
+
+**Após cada transição de fase** (via `/gsd-transition`):
+1. Requisitos invalidados? → Mover para Out of Scope com motivo
+2. Requisitos validados? → Mover para Validated com referência de fase
+3. Novos requisitos surgiram? → Adicionar em Active
+4. Decisões a registrar? → Adicionar em Key Decisions
+5. "What This Is" ainda preciso? → Atualizar se mudou
+
+**Após cada marco** (via `/gsd-complete-milestone`):
+1. Revisão completa de todas as seções
+2. Core Value check — ainda a prioridade certa?
+3. Auditar Out of Scope — os motivos continuam válidos?
+4. Atualizar Context com o estado atual
+
 ---
 *Last updated: 2026-08-06 after initialization*
