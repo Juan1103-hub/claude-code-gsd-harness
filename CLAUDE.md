@@ -67,6 +67,6 @@ React + Next.js + TypeScript + Tailwind CSS, com shadcn/ui (componentes), Lucide
 ## Fluxo recomendado
 1. Classificar o pedido pela tabela de "Roteamento automático" e escolher o comando certo, sem perguntar ao usuário.
 2. Se for projeto/fase nova: registrar em `docs/PROJECT.md`, `docs/DECISIONS.md`, `docs/ROADMAP.md` antes de codar.
-3. Implementar seguindo `karpathy-guidelines.md` e `responsive-design.md` (se envolver UI).
+3. Implementar seguindo `.claude/skills/karpathy-guidelines/SKILL.md` e `.claude/skills/responsive-design/SKILL.md` (se envolver UI).
 4. `open-code-review` (`ocr review`/`ocr delegate`) + agente `code-reviewer` — antes do merge.
 5. `/gsd-verify-work` + `/gsd-ship` — checklist final (inclui `/run-tests`).
