@@ -1,7 +1,8 @@
 ---
 phase: 1
 slug: fundacao-de-dados-e-leitura
-status: draft
+status: approved
+reviewed_at: 2026-08-07
 shadcn_initialized: false
 preset: shadcn new-york / OKLCH / base-ui (init na execução da Fase)
 created: 2026-08-07
