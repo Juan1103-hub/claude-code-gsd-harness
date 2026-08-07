@@ -85,38 +85,38 @@ Explícitos. Documentados para evitar scope creep.
 
 ## Traceability
 
-Preenchido durante a criação do roadmap.
+Mapas das fases criados com o roadmap (ROADMAP.md).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase ? | Pending |
-| DATA-02 | Phase ? | Pending |
-| DATA-03 | Phase ? | Pending |
-| DATA-04 | Phase ? | Pending |
-| DATA-05 | Phase ? | Pending |
-| READ-01 | Phase ? | Pending |
-| READ-02 | Phase ? | Pending |
-| EST-01 | Phase ? | Pending |
-| EST-02 | Phase ? | Pending |
-| EST-03 | Phase ? | Pending |
-| EST-04 | Phase ? | Pending |
-| EST-05 | Phase ? | Pending |
-| NOTA-01 | Phase ? | Pending |
-| NOTA-02 | Phase ? | Pending |
-| AUTH-01 | Phase ? | Pending |
-| AUTH-02 | Phase ? | Pending |
-| AUTH-03 | Phase ? | Pending |
-| AUTH-04 | Phase ? | Pending |
-| AUTH-05 | Phase ? | Pending |
-| BUSA-01 | Phase ? | Pending |
-| UX-01 | Phase ? | Pending |
-| UX-02 | Phase ? | Pending |
+| DATA-01 | Phase 1 | Pending |
+| DATA-02 | Phase 1 | Pending |
+| DATA-03 | Phase 1 | Pending |
+| DATA-04 | Phase 1 | Pending |
+| DATA-05 | Phase 1 | Pending |
+| READ-01 | Phase 1 | Pending |
+| READ-02 | Phase 1 | Pending |
+| EST-01 | Phase 3 | Pending |
+| EST-02 | Phase 3 | Pending |
+| EST-03 | Phase 3 | Pending |
+| EST-04 | Phase 3 | Pending |
+| EST-05 | Phase 3 | Pending |
+| NOTA-01 | Phase 4 | Pending |
+| NOTA-02 | Phase 4 | Pending |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| AUTH-05 | Phase 4 | Pending |
+| BUSA-01 | Phase 5 | Pending |
+| UX-01 | Phase 1 | Pending |
+| UX-02 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 22 total
-- Mapped to phases: 0
-- Unmapped: 22 ⚠️ (roadmap vai preencher)
+- Mapped to phases: 22
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-06*
-*Last updated: 2026-08-06 after initial definition*
+*Last updated: 2026-08-07 after roadmap creation*
