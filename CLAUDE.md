@@ -24,7 +24,7 @@ Antes de agir em qualquer pedido, classifique-o e siga a regra correspondente **
 | Projeto novo do zero | Usuário pede para criar um app/projeto novo | `/gsd-new-project` (se já existir código, rodar `/gsd-map-codebase` antes) |
 | Qualquer edição em código já existente | Sempre, independente do comando GSD escolhido acima | Aplicar `.claude/skills/karpathy-guidelines/SKILL.md` automaticamente |
 | Pedido sem encaixe claro nas categorias acima | — | Default seguro: `/gsd-progress` (ver `docs/PROJECT.md` do projeto ativo). Ajustar conforme o pedido depois de ler o projeto. |
-| Qualquer componente/tela de UI nova ou alterada | Envolve HTML/JSX/CSS/Tailwind | Aplicar `.claude/skills/responsive-design/SKILL.md` automaticamente |
+| Qualquer componente/tela de UI nova ou alterada | Envolve HTML/JSX/CSS/Tailwind | Aplicar `.claude/skills/hallmark/SKILL.md` (anti-AI-slop, design de páginas/auditoria/redesign/study) **em conjunto com** `.claude/skills/responsive-design/SKILL.md` automaticamente |
 | Antes de considerar qualquer tarefa "concluída"/pronta para merge | Sempre, como último passo | `.claude/skills/open-code-review/SKILL.md` (`ocr review` ou `ocr delegate`) + agente `code-reviewer` + `/gsd-verify-work` + `/gsd-ship` |
 
 Regra de desempate: prefira sempre a opção mais leve (`/gsd-quick` antes do fluxo completo de fase) — só escale se o escopo real aparecer maior durante a execução.
@@ -63,7 +63,7 @@ Referência completa vendorizada em `.claude/skills/open-code-review/SKILL.md` (
 - `.claude/commands/` — `run-tests.md` define o `/run-tests`.
 - `.claude/agents/` — `code-reviewer.md`.
 - `.claude/rules/` — `coding.md`, `testing.md`, `deploy.md` (Supabase + Vercel).
-- `.claude/skills/` — `karpathy-guidelines/SKILL.md`, `open-code-review/SKILL.md` (+ `references/delegate.md`), `responsive-design/SKILL.md` (todas vendorizadas com conteúdo completo, no formato oficial de pasta por skill com `SKILL.md`).
+- `.claude/skills/` — `karpathy-guidelines/SKILL.md`, `open-code-review/SKILL.md` (+ `references/delegate.md`), `responsive-design/SKILL.md`, `hallmark/SKILL.md` (todas vendorizadas com conteúdo completo, no formato oficial de pasta por skill com `SKILL.md`).
 - `docs/` — specs GSD do próprio harness (não dos projetos individuais, que têm os próprios `docs/`).
 
 ## Stack padrão
@@ -72,6 +72,6 @@ React + Next.js + TypeScript + Tailwind CSS, com shadcn/ui (componentes), Lucide
 ## Fluxo recomendado
 1. Classificar o pedido pela tabela de "Roteamento automático" e escolher o comando certo, sem perguntar ao usuário.
 2. Se for projeto/fase nova: registrar em `docs/PROJECT.md`, `docs/DECISIONS.md`, `docs/ROADMAP.md` antes de codar.
-3. Implementar seguindo `.claude/skills/karpathy-guidelines/SKILL.md` e `.claude/skills/responsive-design/SKILL.md` (se envolver UI).
+3. Implementar seguindo `.claude/skills/karpathy-guidelines/SKILL.md` e, se envolver UI, `.claude/skills/hallmark/SKILL.md` + `.claude/skills/responsive-design/SKILL.md`.
 4. `open-code-review` (`ocr review`/`ocr delegate`) + agente `code-reviewer` — antes do merge.
 5. `/gsd-verify-work` + `/gsd-ship` — checklist final (inclui `/run-tests`).
