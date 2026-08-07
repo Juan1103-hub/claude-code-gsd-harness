@@ -85,16 +85,18 @@ Two families (pairing, per anti-slop discipline):
 | Display / chapter header | 28px | 600 | 1.2 | sans |
 | Heading (book/chapter bar) | 20px | 600 | 1.2 | sans |
 | Body (UI: menus, footers, kickers) | 16px | 400 | 1.5 | sans |
-| **Scripture text (reader primary)** | **17px** | **400** | **1.15** | **serif** |
-| Label / verse number / column tag | 13px | 500 | 1.2 | sans |
+| **Scripture text (reader primary)** | **16px** | **400** | **1.15** | **serif** |
+| Label / verse number / column tag | 13px | 600 | 1.2 | sans |
 
 | Line height (heading) | 1.2 |
 | Line height (body/reading) | 1.5 UI · 1.15 scripture |
 | Measure (scripture column) | 40–46ch (serif-readable) |
 
-> Reader exception: 17px (a step above the 16px UI body) because scripture is the
-> primary long-session content of the app. Column tags / verse numbers at 13px so
-> they never overpower the verse text.
+> Scripture is set at the same 16px as UI body, but distinguished by **family**
+> (serif vs sans) plus **measure** (40–46ch) and **line-height** (1.15) — a
+> compact, dense reading grid that supports long-session study without an extra
+> size step. The 13px label is weight 600 (promoted from 500) so the verse number /
+> column tag stays legible and never overpowers the verse text.
 
 ---
 
@@ -245,7 +247,7 @@ init). Safety Gate N/A (official registry, installed at execution).
 - [ ] Dimension 1 Copywriting: PASS
 - [ ] Dimension 2 Visuals: PASS
 - [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
+- [ ] Dimension 4 Typography: PASS (collapsed to 4 sizes · 2 weights; scripture 16px serif via family/measure/line-height)
 - [ ] Dimension 5 Spacing: PASS
 - [ ] Dimension 6 Registry Safety: PASS
 
