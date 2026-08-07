@@ -70,6 +70,7 @@ Estudo bíblico profundo e personalizado num único lugar — contexto, originai
 | IA-professor como fase pós-fundação | Parte mais cara/complexa; segmentar evita v1 sobrecarregado | — Pending |
 | Supabase para dados/auth | Funda grupos e compartilhamento desde já; padrão do harness | — Pending |
 | Individual + grupos no v1 | Diferenciação social do deep-study; compartilhamento desde o início | — Pending |
+| UI das fases usa `hallmark` + `responsive-design` | Todas as fases têm UI; `hallmark` (anti-AI-slop design) + `responsive-design` (mobile-first) garantem o diferencial anti-overwhelm | — Pending |
 
 ## Evolution
 
@@ -89,4 +90,4 @@ Este documento evolui nas transições de fase e nos marcos.
 4. Atualizar Context com o estado atual
 
 ---
-*Last updated: 2026-08-06 after initialization*
+*Last updated: 2026-08-07 after roadmap creation + UI skill decision*
