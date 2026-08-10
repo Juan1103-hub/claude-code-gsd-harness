@@ -1,0 +1,109 @@
+# Requirements: Bíblia Sagrada
+
+**Defined:** 2026-08-10
+**Core Value:** Carregamento de texto ultra-rápido e leitura confortável, 100% offline, app leve (~45MB)
+
+## v1 Requirements
+
+Requisitos para o lançamento inicial. Cada um mapeia para fases do roadmap.
+
+### Leitura (LEI)
+
+- [ ] **LEI-01**: Usuário pode ler qualquer capítulo offline com carregamento instantâneo (<200ms)
+- [ ] **LEI-02**: Usuário pode trocar entre traduções disponíveis com troca instantânea
+- [ ] **LEI-03**: Usuário pode navegar por livro, capítulo e versículo
+- [ ] **LEI-04**: Usuário pode buscar texto nas traduções baixadas
+- [ ] **LEI-05**: Usuário pode ajustar tamanho e tipo de fonte
+- [ ] **LEI-06**: Usuário pode alternar modo noturno/dia
+
+### Estudo (EST)
+
+- [ ] **EST-01**: Usuário pode ouvir devocionais em áudio (streaming)
+- [ ] **EST-02**: Usuário pode baixar áudios para ouvir offline
+- [ ] **EST-03**: Usuário pode acessar o comentário bíblico "Rota 66" em áudio
+- [ ] **EST-04**: Usuário pode consultar dicionário bíblico integrado
+- [ ] **EST-05**: Usuário pode usar planos de leitura progressivos e acompanhar progresso
+- [ ] **EST-06**: Usuário pode acessar a seção "O que a Bíblia diz"
+
+### Personalização (PER)
+
+- [ ] **PER-01**: Usuário pode marcar versículos com cores diferentes
+- [ ] **PER-02**: Usuário pode criar e ver anotações por versículo
+- [ ] **PER-03**: Usuário pode acessar hinários (texto)
+
+### Multimídia (MUL)
+
+- [ ] **MUL-01**: Usuário pode assistir estudos em vídeo (links ou embarcados)
+
+### Offline & Tamanho (OFF)
+
+- [ ] **OFF-01**: App inicial com ~45MB e traduções principais embarcadas
+- [ ] **OFF-02**: Traduções adicionais baixáveis sob demanda (sem novo build)
+- [ ] **OFF-03**: Áudios baixados funcionam sem internet
+
+### Sincronização (SYN)
+
+- [ ] **SYN-01**: Usuário pode sincronizar dados de estudo (marcadores, anotações, progresso) na nuvem (opcional)
+
+## v2 Requirements
+
+Adiado para release futuro. Rastreado, mas fora do roadmap atual.
+
+### Traduções pagas
+
+- **LEI-07**: Usuário pode usar NVI, NAA, KJA, NTLH quando licenças forem obtidas
+
+### Áudio avançado
+
+- **EST-07**: Usuário pode ajustar velocidade de reprodução
+- **EST-08**: Usuário pode usar timer de sono
+
+### Social
+
+- **SOC-01**: Usuário pode compartilhar versículos (imagem/texto)
+
+## Out of Scope
+
+Excluído explicitamente. Documentado para evitar escopo crescente.
+
+| Feature | Reason |
+|---------|--------|
+| Traduções com copyright (NVI, NAA, KJA, NTLH) | Exigem licença paga; risco legal |
+| Login obrigatório | App usável sem conta; sync é opcional |
+| Publicidade / compras | Decisão estratégica: 100% gratuito |
+| Rede social / fórum | Fora do escopo de leitura |
+| ARA (SBB) no MVP | Restrições de licenciamento — verificar |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| LEI-01 | Phase 1 | Pending |
+| LEI-02 | Phase 2 | Pending |
+| LEI-03 | Phase 1 | Pending |
+| LEI-04 | Phase 2 | Pending |
+| LEI-05 | Phase 1 | Pending |
+| LEI-06 | Phase 1 | Pending |
+| EST-01 | Phase 3 | Pending |
+| EST-02 | Phase 3 | Pending |
+| EST-03 | Phase 3 | Pending |
+| EST-04 | Phase 2 | Pending |
+| EST-05 | Phase 2 | Pending |
+| EST-06 | Phase 2 | Pending |
+| PER-01 | Phase 2 | Pending |
+| PER-02 | Phase 2 | Pending |
+| PER-03 | Phase 2 | Pending |
+| MUL-01 | Phase 3 | Pending |
+| OFF-01 | Phase 1 | Pending |
+| OFF-02 | Phase 2 | Pending |
+| OFF-03 | Phase 3 | Pending |
+| SYN-01 | Phase 3 | Pending |
+
+**Coverage:**
+- v1 requirements: 20 total
+- Mapped to phases: 20
+- Unmapped: 0 ✓
+
+---
+*Requirements defined: 2026-08-10*
+*Last updated: 2026-08-10 after initial definition*
