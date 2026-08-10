@@ -11,7 +11,9 @@ See: .planning/PROJECT.md (updated 2026-08-10)
 
 - Projeto inicializado: PROJECT.md, config.json, REQUIREMENTS.md, ROADMAP.md criados
 - Decisão registrada: traduções livres (ACF/ARC) no MVP; pagas dependem de licença
-- Stack decidida: Flutter + SQLite (sqlite_async) + Supabase (sync opcional)
+- Stack decidida: Next.js + TypeScript + Tailwind (PWA) + IndexedDB + Supabase (sync opcional)
+  - Mudança de arquitetura: originalmente Flutter; usuário optou por web (sem espaço em disco para Flutter/Android SDK)
+- Plataforma inicial: Android primeiro (via PWA instalável no celular)
 - Nenhum código implementado ainda
 
 ## Next Action
@@ -23,5 +25,6 @@ See: .planning/PROJECT.md (updated 2026-08-10)
 | Decision | Status |
 |----------|--------|
 | Traduções livres (ACF/ARC) no MVP | Registered |
-| Flutter + SQLite + Supabase | Registered |
-| DBs por tradução baixados sob demanda | Registered |
+| PWA Next.js + IndexedDB (em vez de Flutter) | Registered |
+| Android primeiro (PWA instalável no celular) | Registered |
+| Dados baixados sob demanda (IndexedDB) | Registered |

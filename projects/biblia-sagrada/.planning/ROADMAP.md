@@ -2,12 +2,12 @@
 
 ## Overview
 
-Do zero a um app de Bíblia offline-first competitivo. Fase 1 entrega a fundação: projeto Flutter, banco de dados SQLite com traduções livres (ACF/ARC) embarcadas e leitor rápido com tema dia/noturno. Fase 2 adiciona troca de traduções, busca, estudo e personalização. Fase 3 completa com áudio offline, vídeos e sincronização. Granularidade coarse: 3 fases, entregas coerentes por fase.
+Do zero a um app de Bíblia offline-first competitivo. Fase 1 entrega a fundação: projeto Next.js PWA, texto das traduções livres (ACF/ARC) em IndexedDB e leitor rápido com tema dia/noturno. Fase 2 adiciona troca de traduções, busca, estudo e personalização. Fase 3 completa com áudio offline, vídeos e sincronização. Granularidade coarse: 3 fases, entregas coerentes por fase.
 
 ## Phases
 
-- [ ] **Phase 1: Fundação do Leitor** - Projeto Flutter, DB SQLite com ACF/ARC, leitor de capítulos instantâneo, tema dia/noturno, fonte ajustável
-- [ ] **Phase 2: Estudo e Personalização** - Troca de traduções, busca FTS5, dicionário, planos de leitura, "O que a Bíblia diz", marcadores, anotações, hinários
+- [ ] **Phase 1: Fundação do Leitor** - Projeto Next.js PWA, dados ACF/ARC em IndexedDB, leitor de capítulos instantâneo, tema dia/noturno, fonte ajustável
+- [ ] **Phase 2: Estudo e Personalização** - Troca de traduções, busca FTS, dicionário, planos de leitura, "O que a Bíblia diz", marcadores, anotações, hinários
 - [ ] **Phase 3: Multimídia e Sincronização** - Áudio streaming+offline (devocionais, Rota 66), vídeos, sync Supabase
 
 ## Phase Details
@@ -17,16 +17,16 @@ Do zero a um app de Bíblia offline-first competitivo. Fase 1 entrega a fundaç�
 **Depends on**: Nothing (first phase)
 **Requirements**: LEI-01, LEI-03, LEI-05, LEI-06, OFF-01
 **Success Criteria** (what must be TRUE):
-  1. Usuário abre o app e lê Gênesis 1 instantaneamente, sem internet
+  1. Usuário abre o app (web e/ou instalado no celular) e lê Gênesis 1 instantaneamente, sem internet
   2. Usuário navega entre livros e capítulos sem travamento
   3. Usuário alterna modo noturno/dia e muda tamanho de fonte, mantendo leitura fluida
-  4. App compilado Android pesa ~45MB com traduções embarcadas
+  4. PWA instalável, com dados embarcados e cache offline funcionando (desconecta e continua lendo)
   5. Capítulo carrega em <200ms (medido)
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Scaffold Flutter + estrutura do projeto
-- [ ] 01-02: Pipeline de dados SQLite (gerar DBs ACF/ARC via parser, embarcar, indexes)
+- [ ] 01-01: Scaffold Next.js PWA + estrutura do projeto
+- [ ] 01-02: Pipeline de dados (gerar JSON ACF/ARC via parser, embarcar, popular IndexedDB)
 - [ ] 01-03: Leitor de capítulos com tema e configurações de fonte
 
 ### Phase 2: Estudo e Personalização
@@ -35,7 +35,7 @@ Plans:
 **Requirements**: LEI-02, LEI-04, EST-04, EST-05, EST-06, PER-01, PER-02, PER-03, OFF-02
 **Success Criteria** (what must be TRUE):
   1. Usuário troca de tradução no mesmo capítulo sem recarregar visivelmente
-  2. Usuário busca palavra e encontra versículos em <1s
+  2. Usuário busca palavra e encontra versículos em <1s (FTS no navegador)
   3. Usuário marca versículo com cor e cria anotação, ambas persistidas
   4. Usuário consulta dicionário, usa plano de leitura com progresso e acessa "O que a Bíblia diz"
   5. Usuário baixa tradução adicional sob demanda e lê offline
@@ -43,7 +43,7 @@ Plans:
 
 Plans:
 - [ ] 02-01: Troca de traduções + download sob demanda
-- [ ] 02-02: Busca FTS5 + dicionário + "O que a Bíblia diz"
+- [ ] 02-02: Busca FTS + dicionário + "O que a Bíblia diz"
 - [ ] 02-03: Marcadores, anotações, hinários, planos de leitura
 
 ### Phase 3: Multimídia e Sincronização
