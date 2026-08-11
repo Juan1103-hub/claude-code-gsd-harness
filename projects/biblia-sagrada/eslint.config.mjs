@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "public/sw.js",
     "public/swe-worker*",
+    // E2E ad-hoc em CommonJS (padrão Fase 1, biblia-e2e.cjs) — não faz parte do build TS.
+    "scripts/*.cjs",
   ]),
 ]);
 

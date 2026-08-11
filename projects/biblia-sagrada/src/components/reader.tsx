@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getChapter, getIndex, type BibleIndex, type Chapter } from "@/lib/bible";
+import { getChapter, getDownloadedVersions, getIndex, type BibleIndex, type Chapter } from "@/lib/bible";
 import {
   applyTheme,
   readFontScale,
@@ -17,6 +17,7 @@ import {
 } from "@/lib/settings";
 import BookPicker from "@/components/book-picker";
 import VersionPicker from "@/components/version-picker";
+import DownloadModal from "@/components/download-modal";
 
 const LAST_POS_KEY = "bs-last-pos";
 
@@ -66,7 +67,14 @@ export default function Reader() {
   const [fontScale, setFontScale] = useState(() => readFontScale());
   const [pickerOpen, setPickerOpen] = useState(false);
   const [versionPickerOpen, setVersionPickerOpen] = useState(false);
+  const [downloaded, setDownloaded] = useState<string[]>([]);
+  const [downloadTarget, setDownloadTarget] = useState<string | null>(null);
   const [offline, setOffline] = useState(false);
+
+  // Carrega o registro de traduções baixadas (IDB meta) no mount.
+  useEffect(() => {
+    getDownloadedVersions().then(setDownloaded).catch(() => {});
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -201,6 +209,11 @@ export default function Reader() {
     setVersion(code);
   }, []);
 
+  const handleDownloadDone = useCallback((code: string) => {
+    setDownloaded((prev) => (prev.includes(code) ? prev : [...prev, code]));
+    setDownloadTarget(null);
+  }, []);
+
   if (!index) {
     return (
       <Shell>
@@ -278,8 +291,21 @@ export default function Reader() {
         open={versionPickerOpen}
         versions={index.versions}
         current={version}
+        downloaded={downloaded}
         onSelect={handleVersionChange}
+        onManageDownload={(code) => {
+          setVersionPickerOpen(false);
+          setDownloadTarget(code);
+        }}
         onClose={() => setVersionPickerOpen(false)}
+      />
+      <DownloadModal
+        open={downloadTarget !== null}
+        versionCode={downloadTarget}
+        onClose={() => setDownloadTarget(null)}
+        onDone={() => {
+          if (downloadTarget) handleDownloadDone(downloadTarget);
+        }}
       />
     </>
   );

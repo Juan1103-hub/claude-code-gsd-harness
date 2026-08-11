@@ -27,10 +27,14 @@ export interface Chapter {
 }
 
 const DB_NAME = "biblia-sagrada";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const CHAPTERS_STORE = "chapters";
 const META_STORE = "meta";
+const STUDY_STORE = "study";
+const PLANS_STORE = "plans";
+const SEARCH_STORE = "search";
 const DATA_VERSION_KEY = "dataVersion";
+const DOWNLOADED_KEY = "downloadedVersions";
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 let indexCache: BibleIndex | null = null;
@@ -63,6 +67,16 @@ function openDb(): Promise<IDBDatabase> {
         }
         if (!db.objectStoreNames.contains(META_STORE)) {
           db.createObjectStore(META_STORE);
+        }
+        // IDB v2 (plano 02-01): stores das fases seguintes criados aqui, idempotente.
+        if (!db.objectStoreNames.contains(STUDY_STORE)) {
+          db.createObjectStore(STUDY_STORE, { keyPath: "id" });
+        }
+        if (!db.objectStoreNames.contains(PLANS_STORE)) {
+          db.createObjectStore(PLANS_STORE, { keyPath: "planId" });
+        }
+        if (!db.objectStoreNames.contains(SEARCH_STORE)) {
+          db.createObjectStore(SEARCH_STORE, { keyPath: "versionCode" });
         }
       };
       request.onsuccess = () => resolve(request.result);
@@ -119,16 +133,107 @@ async function clearChapters(db: IDBDatabase): Promise<void> {
   });
 }
 
+async function clearStore(db: IDBDatabase, storeName: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    tx.objectStore(storeName).clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
 /**
  * Garante que a versão de dados persistida é a mesma do build atual.
  * Se o índice indicar outra versão (build novo com dados regenerados),
- * descarta o cache local e repopula sob demanda.
+ * descarta o cache local (chapters + search + downloadedVersions) e
+ * repopula sob demanda — Pitfall 5: a UI nunca diz "baixada" para dados
+ * apagados; traduções baixadas viram cache versionado (badge some, usuário
+ * re-baixa na nova dataVersion).
  */
 async function ensureDataVersion(db: IDBDatabase, index: BibleIndex): Promise<void> {
   const current = await readMeta(db, DATA_VERSION_KEY);
   if (current !== index.dataVersion) {
     await clearChapters(db);
+    await clearStore(db, SEARCH_STORE);
+    await writeMeta(db, DOWNLOADED_KEY, "[]");
     await writeMeta(db, DATA_VERSION_KEY, index.dataVersion);
+  }
+}
+
+/** Códigos de tradução baixadas por completo (meta downloadedVersions). */
+export async function getDownloadedVersions(): Promise<string[]> {
+  const db = await openDb();
+  const raw = await readMeta(db, DOWNLOADED_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Guarda o índice de busca serializado (plano 02-02) para uso offline. */
+export async function putSearchIndex(versionCode: string, json: string): Promise<void> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(SEARCH_STORE, "readwrite");
+    tx.objectStore(SEARCH_STORE).put({ versionCode, json });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+export async function getSearchIndex(versionCode: string): Promise<string | null> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(SEARCH_STORE, "readonly");
+    const request = tx.objectStore(SEARCH_STORE).get(versionCode);
+    request.onsuccess = () => {
+      const row = request.result as { json: string } | undefined;
+      resolve(row ? row.json : null);
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Baixa todos os 66 livros de uma tradução para o store chapters (fetch único
+ * por livro via loadBookIntoStore, idempotente). Se public/data/search/<v>.json
+ * existir, também o persiste no store search (Pitfall 6: índice pode ainda não
+ * existir no build atual — 404 vira skip silencioso). Ao final, registra a
+ * tradução em downloadedVersions.
+ */
+export async function downloadTranslation(
+  versionCode: string,
+  onProgress: (done: number, total: number) => void,
+): Promise<void> {
+  const index = await getIndex();
+  const version = index.versions.find((v) => v.code === versionCode);
+  if (!version) {
+    throw new Error(`Versão desconhecida: ${versionCode}`);
+  }
+  const db = await openDb();
+  const total = index.books.length;
+  let done = 0;
+  for (const book of index.books) {
+    await loadBookIntoStore(db, versionCode, book);
+    done += 1;
+    onProgress(done, total);
+  }
+  // Índice de busca do plano 02-02: persiste quando existir; 404/erro é silencioso.
+  try {
+    const res = await fetch(`/data/search/${versionCode}.json`);
+    if (res.ok) {
+      await putSearchIndex(versionCode, await res.text());
+    }
+  } catch {
+    /* sem rede — índice de busca só é pré-requisito do plano 02-02 */
+  }
+  const downloaded = await getDownloadedVersions();
+  if (!downloaded.includes(versionCode)) {
+    downloaded.push(versionCode);
+    await writeMeta(db, DOWNLOADED_KEY, JSON.stringify(downloaded));
   }
 }
 
