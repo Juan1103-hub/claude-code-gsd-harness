@@ -385,16 +385,20 @@ if (childRel.startsWith("blivre") || childRel.startsWith("search/blivre")) {
 | A5 | Tab bar client-side sem rotas novas mantém offline intacto | Architecture | Se planner decidir rotas, precisa E2E offline por rota — decisão aberta (OQ-3) |
 | A6 | `navigator.storage.estimate()` disponível no target (moderno) para exibir tamanho no download | Pitfalls/UX | Feature detect; se ausente, ocultar estimativa |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **OQ-1 — Origem do conteúdo curado (dicionário/hinos/temas):** dicionário ~200-300 verbetes, ~50 hinos de domínio público PT, ~10 temas. Quem produz/fornece? (planner precisa de tarefa de curadoria ou fonte JSON)
    - O que sabemos: `data/raw/` hoje só tem traduções (BLIVRE/ALM1911/TB).
    - O que está claro: sem conteúdo, EST-04/EST-06/PER-03 não têm dados para pipeline.
    - Recomendação: default — pipeline aceita qualquer entrada JSON; curadoria pode ser feita em lote pequeno (verbetes essenciais) para não bloquear a fase; expandir em fase futura.
+   - **RESOLVED (02-02 T2 + 02-03 T2):** curadoria virou tarefas de plano — dicionário (~100-300 verbetes, mitigação A1) e temas em 02-02 T2; hinos (~50 PD, mínimo aceito 30) em 02-03 T2; backstop registrado em must_haves.truths (verification: backstop) de cada plano.
 2. **OQ-2 — Tamanho real do índice FTS:** estimativa 2–4 MB/versão.
    - Recomendação: medir no build (log `search/*.json` length) antes de fechar plano de tuning.
+   - **RESOLVED (02-02 T1):** log de tamanho no search-build.mjs — `console.log(\`${code}: ${(bytes/1024).toFixed(1)}KB, ${docs.length} docs\`)` por tradução no build.
 3. **OQ-3 — Rotas novas vs tab bar client-side:** pesquisa recomenda tab bar (A5); planner deve confirmar se aceita ou exige rotas (`/busca`, `/estudo`).
+   - **RESOLVED (02-02 T1):** tab bar client-side no shell de página única (app/page.tsx) — sem rotas novas (A5 confirmada).
 4. **OQ-4 — UX de re-download pós-update:** quando `dataVersion` muda, BLIVRE é invalidade; exibir "atualizar download" ou re-baixar silencioso? (recomendo badge, sem auto)
+   - **RESOLVED (02-01 T3 + Pitfall 5):** badge re-download — `ensureDataVersion` limpa `downloadedVersions` + store `search` junto com chapters; UI volta a mostrar "Baixar" (sem re-baixar automático).
 
 ## Environment Availability
 
