@@ -12,7 +12,7 @@ Requisitos para o lançamento inicial. Cada um mapeia para fases do roadmap.
 - [x] **LEI-01**: Usuário pode ler qualquer capítulo offline com carregamento instantâneo (<200ms)
 - [x] **LEI-02**: Usuário pode trocar entre traduções disponíveis com troca instantânea
 - [x] **LEI-03**: Usuário pode navegar por livro, capítulo e versículo
-- [ ] **LEI-04**: Usuário pode buscar texto nas traduções baixadas
+- [x] **LEI-04**: Usuário pode buscar texto nas traduções baixadas
 - [x] **LEI-05**: Usuário pode ajustar tamanho e tipo de fonte
 - [x] **LEI-06**: Usuário pode alternar modo noturno/dia
 
@@ -21,9 +21,9 @@ Requisitos para o lançamento inicial. Cada um mapeia para fases do roadmap.
 - [ ] **EST-01**: Usuário pode ouvir devocionais em áudio (streaming)
 - [ ] **EST-02**: Usuário pode baixar áudios para ouvir offline
 - [ ] **EST-03**: Usuário pode acessar o comentário bíblico "Rota 66" em áudio
-- [ ] **EST-04**: Usuário pode consultar dicionário bíblico integrado
+- [x] **EST-04**: Usuário pode consultar dicionário bíblico integrado
 - [ ] **EST-05**: Usuário pode usar planos de leitura progressivos e acompanhar progresso
-- [ ] **EST-06**: Usuário pode acessar a seção "O que a Bíblia diz"
+- [x] **EST-06**: Usuário pode acessar a seção "O que a Bíblia diz"
 
 ### Personalização (PER)
 
@@ -96,15 +96,15 @@ Excluído explicitamente. Documentado para evitar escopo crescente.
 | LEI-01 | Phase 1 | Complete |
 | LEI-02 | Phase 2 | Complete |
 | LEI-03 | Phase 1 | Complete |
-| LEI-04 | Phase 2 | Pending |
+| LEI-04 | Phase 2 | Complete |
 | LEI-05 | Phase 1 | Complete |
 | LEI-06 | Phase 1 | Complete |
 | EST-01 | Phase 3 | Pending |
 | EST-02 | Phase 3 | Pending |
 | EST-03 | Phase 3 | Pending |
-| EST-04 | Phase 2 | Pending |
+| EST-04 | Phase 2 | Complete |
 | EST-05 | Phase 2 | Pending |
-| EST-06 | Phase 2 | Pending |
+| EST-06 | Phase 2 | Complete |
 | PER-01 | Phase 2 | Pending |
 | PER-02 | Phase 2 | Pending |
 | PER-03 | Phase 2 | Pending |
