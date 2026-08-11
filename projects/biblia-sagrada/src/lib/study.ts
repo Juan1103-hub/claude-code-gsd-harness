@@ -16,8 +16,15 @@ export interface Theme {
   verses: ThemeVerse[];
 }
 
+export interface Hymn {
+  id: string;
+  title: string;
+  verses: string[];
+}
+
 let dictionaryCache: DictionaryEntry[] | null = null;
 let themesCache: Theme[] | null = null;
+let hymnsCache: Hymn[] | null = null;
 
 export async function getDictionary(): Promise<DictionaryEntry[]> {
   if (dictionaryCache) return dictionaryCache;
@@ -37,4 +44,14 @@ export async function getThemes(): Promise<Theme[]> {
   }
   themesCache = (await res.json()) as Theme[];
   return themesCache;
+}
+
+export async function getHymns(): Promise<Hymn[]> {
+  if (hymnsCache) return hymnsCache;
+  const res = await fetch("/data/study/hymns.json");
+  if (!res.ok) {
+    throw new Error(`Falha ao carregar hinário (HTTP ${res.status})`);
+  }
+  hymnsCache = (await res.json()) as Hymn[];
+  return hymnsCache;
 }

@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { BibleIndex } from "@/lib/bible";
-import { getDictionary, getThemes, type DictionaryEntry, type Theme } from "@/lib/study";
+import type { BibleIndex, StudyRecord } from "@/lib/bible";
+import { getAllStudyRecords } from "@/lib/bible";
+import { getDictionary, getThemes, getHymns, type DictionaryEntry, type Theme, type Hymn } from "@/lib/study";
 import { normalizeTerm } from "@/lib/search-options";
 
 interface StudyViewProps {
@@ -10,22 +11,27 @@ interface StudyViewProps {
   onNavigate: (bookId: number, chapter: number) => void;
 }
 
-type Tab = "dicionario" | "temas";
+type Tab = "dicionario" | "temas" | "hinos" | "notas";
 
 export default function StudyView({ index, onNavigate }: StudyViewProps) {
   const [tab, setTab] = useState<Tab>("dicionario");
   const [dictionary, setDictionary] = useState<DictionaryEntry[]>([]);
   const [themes, setThemes] = useState<Theme[]>([]);
+  const [hymns, setHymns] = useState<Hymn[]>([]);
+  const [notes, setNotes] = useState<StudyRecord[]>([]);
   const [query, setQuery] = useState("");
   const [expandedTheme, setExpandedTheme] = useState<string | null>(null);
+  const [expandedHymn, setExpandedHymn] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getDictionary(), getThemes()])
-      .then(([dict, th]) => {
+    Promise.all([getDictionary(), getThemes(), getHymns(), getAllStudyRecords()])
+      .then(([dict, th, hym, allRecords]) => {
         setDictionary(dict);
         setThemes(th);
+        setHymns(hym);
+        setNotes(allRecords.filter((r: StudyRecord) => r.text));
         setLoading(false);
       })
       .catch((err) => {
@@ -77,6 +83,16 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
           label="O que a Bíblia diz"
           active={tab === "temas"}
           onClick={() => setTab("temas")}
+        />
+        <TabButton
+          label="Hinos"
+          active={tab === "hinos"}
+          onClick={() => setTab("hinos")}
+        />
+        <TabButton
+          label="Notas"
+          active={tab === "notas"}
+          onClick={() => setTab("notas")}
         />
       </div>
 
@@ -156,6 +172,68 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
               )}
             </li>
           ))}
+        </ul>
+      )}
+
+      {tab === "hinos" && (
+        <ul className="space-y-3">
+          {hymns.map((hymn) => (
+            <li key={hymn.id} className="rounded-xl border border-line bg-paper">
+              <button
+                type="button"
+                onClick={() =>
+                  setExpandedHymn(expandedHymn === hymn.id ? null : hymn.id)
+                }
+                className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
+              >
+                <span className="text-base font-semibold text-ink">
+                  {hymn.title}
+                </span>
+                <span className="text-sm text-ink-soft">
+                  {expandedHymn === hymn.id ? "▾" : "▸"}
+                </span>
+              </button>
+              {expandedHymn === hymn.id && (
+                <div className="border-t border-line px-4 py-3">
+                  {hymn.verses.map((verse, i) => (
+                    <p key={i} className="mb-2 font-serif text-sm leading-relaxed text-ink">
+                      {verse}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {tab === "notas" && (
+        <ul className="space-y-3">
+          {notes.length === 0 && (
+            <p className="text-center text-sm text-ink-soft">
+              Nenhuma anotação
+            </p>
+          )}
+          {notes.map((note) => {
+            const book = index.books.find((b) => b.id === note.ref.book);
+            return (
+              <li key={note.id}>
+                <button
+                  type="button"
+                  onClick={() => onNavigate(note.ref.book, note.ref.chapter)}
+                  className="w-full rounded-xl border border-line bg-paper p-4 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
+                  style={note.color ? { borderLeftWidth: "4px", borderLeftColor: note.color } : undefined}
+                >
+                  <p className="mb-1 text-xs font-semibold text-accent">
+                    {book?.abbrev} {note.ref.chapter + 1}:{note.ref.verse + 1}
+                  </p>
+                  <p className="font-serif text-sm leading-relaxed text-ink">
+                    {note.text}
+                  </p>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

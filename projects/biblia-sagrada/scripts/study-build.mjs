@@ -73,6 +73,41 @@ function validateThemes(themes) {
   }
 }
 
+function validateHymns(hymns) {
+  if (!Array.isArray(hymns) || hymns.length < 30) {
+    throw new Error(
+      `hymns.json: esperado array com ≥30 hinos, recebido ${
+        Array.isArray(hymns) ? hymns.length : typeof hymns
+      }`,
+    );
+  }
+  for (let i = 0; i < hymns.length; i++) {
+    const hymn = hymns[i];
+    if (
+      !hymn ||
+      typeof hymn.id !== "string" ||
+      !hymn.id ||
+      typeof hymn.title !== "string" ||
+      !hymn.title
+    ) {
+      throw new Error(
+        `hymns.json: hino ${i} inválido (id/title ausentes ou não-string)`,
+      );
+    }
+    if (!Array.isArray(hymn.verses) || hymn.verses.length === 0) {
+      throw new Error(`hymns.json: hino ${hymn.id} não tem versos`);
+    }
+    for (let j = 0; j < hymn.verses.length; j++) {
+      const verse = hymn.verses[j];
+      if (typeof verse !== "string" || !verse.trim()) {
+        throw new Error(
+          `hymns.json: hino ${hymn.id}, verso ${j} inválido (não-string ou vazio)`,
+        );
+      }
+    }
+  }
+}
+
 async function main() {
   await fs.mkdir(OUT_DIR, { recursive: true });
 
@@ -104,6 +139,21 @@ async function main() {
     console.log(`themes.json: ${themes.length} temas`);
   } else {
     console.warn("skip themes.json (arquivo raw ausente)");
+  }
+
+  // Hymns
+  const hymnsPath = path.join(RAW_DIR, "hymns.json");
+  if (await fs.stat(hymnsPath).catch(() => null)) {
+    const hymns = JSON.parse(await fs.readFile(hymnsPath, "utf8"));
+    validateHymns(hymns);
+    await fs.writeFile(
+      path.join(OUT_DIR, "hymns.json"),
+      JSON.stringify(hymns),
+      "utf8",
+    );
+    console.log(`hymns.json: ${hymns.length} hinos`);
+  } else {
+    console.warn("skip hymns.json (arquivo raw ausente)");
   }
 }
 
