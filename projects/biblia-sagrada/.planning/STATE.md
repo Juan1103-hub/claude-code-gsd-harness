@@ -3,10 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-last_updated: "2026-08-11T12:50:02.731Z"
+stopped_at: Phase 2 context gathered
+last_updated: "2026-08-11T13:06:25.652Z"
 progress:
-  total_phases: 1
-  completed_phases: 1
+  total_phases: 2
+  completed_phases: 0
   total_plans: 0
   completed_plans: 0
 current_phase_name: Estudo e Personalização
@@ -62,3 +63,9 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 | Dados baixados sob demanda (IndexedDB) | Registered |
 | Config único `next.config.ts` com `collectPublicFiles()` para precache de `/data/**` | Registered (11/08/2026) |
 | SW registrado via `SerwistProvider` em `app/layout.tsx` | Registered (11/08/2026) |
+
+## Session
+
+**Last session:** 2026-08-11T13:06:25.619Z
+**Stopped at:** Phase 2 context gathered
+**Resume file:** .planning/phases/02-estudo-e-personaliza-o/02-CONTEXT.md
