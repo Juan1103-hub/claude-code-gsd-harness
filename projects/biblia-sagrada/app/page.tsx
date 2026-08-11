@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Reader from "@/components/reader";
 import SearchView from "@/components/search-view";
+import StudyView from "@/components/study-view";
 import { getIndex, type BibleIndex } from "@/lib/bible";
 import { readVersion } from "@/lib/settings";
 
@@ -41,10 +42,17 @@ export default function Home() {
             onNavigate={handleNavigate}
           />
         )}
-        {view === "study" && (
-          <div className="flex flex-1 items-center justify-center px-6">
-            <p className="font-serif text-lg text-ink-soft">Em breve</p>
-          </div>
+        {view === "study" && index && (
+          <StudyView
+            index={index}
+            onNavigate={(b, c) => {
+              setView("reader");
+              const url = new URL(window.location.href);
+              url.searchParams.set("b", String(b));
+              url.searchParams.set("c", String(c));
+              window.history.replaceState(null, "", url.toString());
+            }}
+          />
         )}
       </div>
 
