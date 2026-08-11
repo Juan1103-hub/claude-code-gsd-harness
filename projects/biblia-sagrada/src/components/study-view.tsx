@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { BibleIndex, StudyRecord } from "@/lib/bible";
-import { getAllStudyRecords } from "@/lib/bible";
-import { getDictionary, getThemes, getHymns, type DictionaryEntry, type Theme, type Hymn } from "@/lib/study";
+import type { BibleIndex, PlanProgress } from "@/lib/bible";
+import { getAllStudyRecords, getPlanProgress, setPlanProgress } from "@/lib/bible";
+import { getDictionary, getThemes, getHymns, getPlans, type DictionaryEntry, type Theme, type Hymn, type Plan } from "@/lib/study";
 import { normalizeTerm } from "@/lib/search-options";
 
 interface StudyViewProps {
@@ -11,27 +11,39 @@ interface StudyViewProps {
   onNavigate: (bookId: number, chapter: number) => void;
 }
 
-type Tab = "dicionario" | "temas" | "hinos" | "notas";
+type Tab = "dicionario" | "temas" | "hinos" | "notas" | "planos";
 
 export default function StudyView({ index, onNavigate }: StudyViewProps) {
   const [tab, setTab] = useState<Tab>("dicionario");
   const [dictionary, setDictionary] = useState<DictionaryEntry[]>([]);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [hymns, setHymns] = useState<Hymn[]>([]);
-  const [notes, setNotes] = useState<StudyRecord[]>([]);
+  const [notes, setNotes] = useState<import("@/lib/bible").StudyRecord[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [planProgress, setPlanProgressState] = useState<Map<string, PlanProgress>>(new Map());
   const [query, setQuery] = useState("");
   const [expandedTheme, setExpandedTheme] = useState<string | null>(null);
   const [expandedHymn, setExpandedHymn] = useState<string | null>(null);
+  const [expandedPlan, setExpandedPlan] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getDictionary(), getThemes(), getHymns(), getAllStudyRecords()])
-      .then(([dict, th, hym, allRecords]) => {
+    Promise.all([getDictionary(), getThemes(), getHymns(), getAllStudyRecords(), getPlans()])
+      .then(([dict, th, hym, allRecords, pl]) => {
         setDictionary(dict);
         setThemes(th);
         setHymns(hym);
-        setNotes(allRecords.filter((r: StudyRecord) => r.text));
+        setNotes(allRecords.filter((r: import("@/lib/bible").StudyRecord) => r.text));
+        setPlans(pl);
+        // Carrega progresso de todos os planos
+        Promise.all(pl.map((p) => getPlanProgress(p.id))).then((progressArr) => {
+          const map = new Map<string, PlanProgress>();
+          pl.forEach((p, i) => {
+            if (progressArr[i]) map.set(p.id, progressArr[i]!);
+          });
+          setPlanProgressState(map);
+        });
         setLoading(false);
       })
       .catch((err) => {
@@ -93,6 +105,11 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
           label="Notas"
           active={tab === "notas"}
           onClick={() => setTab("notas")}
+        />
+        <TabButton
+          label="Planos"
+          active={tab === "planos"}
+          onClick={() => setTab("planos")}
         />
       </div>
 
@@ -231,6 +248,106 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                     {note.text}
                   </p>
                 </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {tab === "planos" && (
+        <ul className="space-y-3">
+          {plans.map((plan) => {
+            const progress = planProgress.get(plan.id);
+            const completedDays = progress?.completedDays ?? [];
+            const percent = Math.round((completedDays.length / plan.totalDays) * 100);
+            return (
+              <li key={plan.id} className="rounded-xl border border-line bg-paper">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setExpandedPlan(expandedPlan === plan.id ? null : plan.id)
+                  }
+                  className="flex w-full flex-col items-start gap-2 px-4 py-3 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <span className="text-base font-semibold text-ink">
+                      {plan.title}
+                    </span>
+                    <span className="text-sm text-ink-soft">
+                      {expandedPlan === plan.id ? "▾" : "▸"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-ink-soft">{plan.description}</p>
+                  <div className="w-full">
+                    <div className="mb-1 flex justify-between text-xs text-ink-faint">
+                      <span>{completedDays.length}/{plan.totalDays} dias</span>
+                      <span>{percent}%</span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-paper-muted">
+                      <div
+                        className="h-full rounded-full bg-accent transition-[width]"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </div>
+                </button>
+                {expandedPlan === plan.id && (
+                  <ul className="space-y-2 border-t border-line px-4 py-3">
+                    {plan.days.slice(0, 30).map((planDay) => {
+                      const isCompleted = completedDays.includes(planDay.day);
+                      return (
+                        <li key={planDay.day} className="rounded-lg bg-paper-muted p-3">
+                          <div className="mb-2 flex items-center justify-between">
+                            <span className="text-xs font-semibold text-accent">
+                              Dia {planDay.day}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const newCompleted = isCompleted
+                                  ? completedDays.filter((d) => d !== planDay.day)
+                                  : [...completedDays, planDay.day];
+                                await setPlanProgress(plan.id, newCompleted);
+                                setPlanProgressState((prev) => {
+                                  const next = new Map(prev);
+                                  next.set(plan.id, { planId: plan.id, completedDays: newCompleted, updatedAt: Date.now() });
+                                  return next;
+                                });
+                              }}
+                              className={`rounded-full px-3 py-1 text-xs font-medium transition-opacity hover:opacity-90 ${
+                                isCompleted
+                                  ? "bg-accent text-white"
+                                  : "border border-line bg-paper text-ink-soft"
+                              }`}
+                            >
+                              {isCompleted ? "✓ Concluído" : "Marcar concluído"}
+                            </button>
+                          </div>
+                          <div className="space-y-1">
+                            {planDay.readings.map((reading, i) => {
+                              const book = index.books.find((b) => b.id === reading.book);
+                              return (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  onClick={() => onNavigate(reading.book, reading.chapter - 1)}
+                                  className="block w-full rounded px-2 py-1 text-left text-sm text-ink transition-colors hover:bg-paper focus-visible:outline-2 focus-visible:outline-accent"
+                                >
+                                  {book?.abbrev} {reading.chapter}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </li>
+                      );
+                    })}
+                    {plan.days.length > 30 && (
+                      <p className="text-center text-xs text-ink-faint">
+                        Mostrando primeiros 30 de {plan.days.length} dias
+                      </p>
+                    )}
+                  </ul>
+                )}
               </li>
             );
           })}

@@ -22,9 +22,28 @@ export interface Hymn {
   verses: string[];
 }
 
+export interface DailyReading {
+  book: number;
+  chapter: number;
+}
+
+export interface PlanDay {
+  day: number;
+  readings: DailyReading[];
+}
+
+export interface Plan {
+  id: string;
+  title: string;
+  description: string;
+  totalDays: number;
+  days: PlanDay[];
+}
+
 let dictionaryCache: DictionaryEntry[] | null = null;
 let themesCache: Theme[] | null = null;
 let hymnsCache: Hymn[] | null = null;
+let plansCache: Plan[] | null = null;
 
 export async function getDictionary(): Promise<DictionaryEntry[]> {
   if (dictionaryCache) return dictionaryCache;
@@ -54,4 +73,14 @@ export async function getHymns(): Promise<Hymn[]> {
   }
   hymnsCache = (await res.json()) as Hymn[];
   return hymnsCache;
+}
+
+export async function getPlans(): Promise<Plan[]> {
+  if (plansCache) return plansCache;
+  const res = await fetch("/data/study/plans.json");
+  if (!res.ok) {
+    throw new Error(`Falha ao carregar planos (HTTP ${res.status})`);
+  }
+  plansCache = (await res.json()) as Plan[];
+  return plansCache;
 }
