@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getChapter, getDownloadedVersions, getIndex, type BibleIndex, type Chapter } from "@/lib/bible";
+import { getChapter, getDownloadedVersions, getIndex, getStudyRecords, type BibleIndex, type Chapter, type StudyRecord } from "@/lib/bible";
 import {
   applyTheme,
   readFontScale,
@@ -18,6 +18,7 @@ import {
 import BookPicker from "@/components/book-picker";
 import VersionPicker from "@/components/version-picker";
 import DownloadModal from "@/components/download-modal";
+import VerseActions from "@/components/verse-actions";
 
 const LAST_POS_KEY = "bs-last-pos";
 
@@ -70,6 +71,9 @@ export default function Reader() {
   const [downloaded, setDownloaded] = useState<string[]>([]);
   const [downloadTarget, setDownloadTarget] = useState<string | null>(null);
   const [offline, setOffline] = useState(false);
+  const [studyRecords, setStudyRecords] = useState<StudyRecord[]>([]);
+  const [verseActionsOpen, setVerseActionsOpen] = useState(false);
+  const [verseActionsVerse, setVerseActionsVerse] = useState<{ book: number; chapter: number; verse: number } | null>(null);
 
   // Carrega o registro de traduções baixadas (IDB meta) no mount.
   useEffect(() => {
@@ -130,6 +134,10 @@ export default function Reader() {
         window.history.replaceState(null, "", url.toString());
         localStorage.setItem(LAST_POS_KEY, JSON.stringify({ bookId: result.book.id, chapter: result.chapter }));
         writeVersion(version);
+        // Carrega registros de estudo (marcadores/anotações) do capítulo.
+        getStudyRecords(version, result.book.id, result.chapter)
+          .then(setStudyRecords)
+          .catch(() => setStudyRecords([]));
       })
       .catch(() => {
         if (!cancelled) setStatus("error");
@@ -214,6 +222,18 @@ export default function Reader() {
     setDownloadTarget(null);
   }, []);
 
+  const handleVerseClick = useCallback((book: number, chapter: number, verse: number) => {
+    setVerseActionsVerse({ book, chapter, verse });
+    setVerseActionsOpen(true);
+  }, []);
+
+  const handleStudyRecordsChanged = useCallback(() => {
+    if (!chapter) return;
+    getStudyRecords(version, chapter.book.id, chapter.chapter)
+      .then(setStudyRecords)
+      .catch(() => setStudyRecords([]));
+  }, [chapter, version]);
+
   if (!index) {
     return (
       <Shell>
@@ -271,7 +291,12 @@ export default function Reader() {
           </main>
         )}
         {status === "ready" && chapter && (
-          <ChapterView chapter={chapter} fontScale={fontScale} />
+          <ChapterView
+            chapter={chapter}
+            fontScale={fontScale}
+            studyRecords={studyRecords}
+            onVerseClick={handleVerseClick}
+          />
         )}
         <Footer
           hasPrev={pos.bookId > 0 || pos.chapter > 0}
@@ -305,6 +330,18 @@ export default function Reader() {
         onClose={() => setDownloadTarget(null)}
         onDone={() => {
           if (downloadTarget) handleDownloadDone(downloadTarget);
+        }}
+      />
+      <VerseActions
+        open={verseActionsOpen}
+        verse={verseActionsVerse}
+        version={version}
+        label={verseActionsVerse ? `${chapter?.book.abbrev ?? ""} ${verseActionsVerse.chapter + 1}:${verseActionsVerse.verse + 1}` : ""}
+        initial={verseActionsVerse ? studyRecords.find((r) => r.ref.verse === verseActionsVerse.verse) ?? null : null}
+        onClose={() => setVerseActionsOpen(false)}
+        onChanged={() => {
+          handleStudyRecordsChanged();
+          setVerseActionsOpen(false);
         }}
       />
     </>
@@ -406,7 +443,17 @@ function IconButton({
   );
 }
 
-function ChapterView({ chapter, fontScale }: { chapter: Chapter; fontScale: number }) {
+function ChapterView({
+  chapter,
+  fontScale,
+  studyRecords,
+  onVerseClick,
+}: {
+  chapter: Chapter;
+  fontScale: number;
+  studyRecords: StudyRecord[];
+  onVerseClick: (book: number, chapter: number, verse: number) => void;
+}) {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-6 sm:px-8">
       <h1 className="mb-6 font-serif text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
@@ -416,12 +463,30 @@ function ChapterView({ chapter, fontScale }: { chapter: Chapter; fontScale: numb
         className="space-y-4 font-serif leading-[1.75] text-ink"
         style={{ fontSize: `${(fontScale * 1.125).toFixed(2)}rem` }}
       >
-        {chapter.verses.map((verse, i) => (
-          <p key={i} className="text-pretty">
-            <sup className="mr-2 select-none text-[0.6em] font-semibold text-accent">{i + 1}</sup>
-            {verse}
-          </p>
-        ))}
+        {chapter.verses.map((verse, i) => {
+          const record = studyRecords.find((r) => r.ref.verse === i);
+          const hasAnnotation = record?.text;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onVerseClick(chapter.book.id, chapter.chapter, i)}
+              className="block w-full rounded-lg px-2 py-1 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
+              style={record?.color ? { backgroundColor: record.color } : undefined}
+              aria-label={`Versículo ${i + 1} (${chapter.book.abbrev} ${chapter.chapter + 1}:${i + 1})`}
+            >
+              <span className="text-pretty">
+                <sup className="mr-2 select-none text-[0.6em] font-semibold text-accent">{i + 1}</sup>
+                {verse}
+                {hasAnnotation && (
+                  <span className="ml-1 text-xs text-accent" aria-label="Tem anotação">
+                    ✎
+                  </span>
+                )}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </main>
   );

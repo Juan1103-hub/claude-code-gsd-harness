@@ -314,3 +314,96 @@ export async function getChapter(versionCode: string, bookId: number, chapter: n
 
   return { book, version, chapter, verses };
 }
+
+/**
+ * Registro de estudo (marcador/anotação) por versículo.
+ * id no formato `${version}:${book}:${chapter}:${verse}` (D-06).
+ */
+export interface StudyRecord {
+  id: string;
+  ref: { version: string; book: number; chapter: number; verse: number };
+  color: string | null;
+  text: string | null;
+  updatedAt: number;
+}
+
+/** Progresso de plano de leitura (dias concluídos). */
+export interface PlanProgress {
+  planId: string;
+  completedDays: number[];
+  updatedAt: number;
+}
+
+/** Retorna todos os registros de estudo de um capítulo específico. */
+export async function getStudyRecords(
+  version: string,
+  book: number,
+  chapter: number,
+): Promise<StudyRecord[]> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STUDY_STORE, "readonly");
+    const store = tx.objectStore(STUDY_STORE);
+    const lower = `${version}:${book}:${chapter}:`;
+    const upper = `${version}:${book}:${chapter}:\uffff`;
+    const range = IDBKeyRange.bound(lower, upper, true, true);
+    const request = store.getAll(range);
+    request.onsuccess = () => resolve((request.result as StudyRecord[]) || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/** Retorna todos os registros de estudo (usado na aba Notas). */
+export async function getAllStudyRecords(): Promise<StudyRecord[]> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STUDY_STORE, "readonly");
+    const request = tx.objectStore(STUDY_STORE).getAll();
+    request.onsuccess = () => resolve((request.result as StudyRecord[]) || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/** Cria ou atualiza um registro de estudo (upsert). */
+export async function putStudyRecord(record: StudyRecord): Promise<void> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STUDY_STORE, "readwrite");
+    tx.objectStore(STUDY_STORE).put(record);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+/** Remove um registro de estudo por id. */
+export async function deleteStudyRecord(id: string): Promise<void> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STUDY_STORE, "readwrite");
+    tx.objectStore(STUDY_STORE).delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+/** Retorna o progresso de um plano de leitura. */
+export async function getPlanProgress(planId: string): Promise<PlanProgress | null> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PLANS_STORE, "readonly");
+    const request = tx.objectStore(PLANS_STORE).get(planId);
+    request.onsuccess = () => resolve((request.result as PlanProgress) || null);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/** Define o progresso de um plano de leitura (dias concluídos). */
+export async function setPlanProgress(planId: string, completedDays: number[]): Promise<void> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PLANS_STORE, "readwrite");
+    tx.objectStore(PLANS_STORE).put({ planId, completedDays, updatedAt: Date.now() });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
