@@ -9,12 +9,12 @@ Requisitos para o lançamento inicial. Cada um mapeia para fases do roadmap.
 
 ### Leitura (LEI)
 
-- [ ] **LEI-01**: Usuário pode ler qualquer capítulo offline com carregamento instantâneo (<200ms)
+- [x] **LEI-01**: Usuário pode ler qualquer capítulo offline com carregamento instantâneo (<200ms)
 - [ ] **LEI-02**: Usuário pode trocar entre traduções disponíveis com troca instantânea
-- [ ] **LEI-03**: Usuário pode navegar por livro, capítulo e versículo
+- [x] **LEI-03**: Usuário pode navegar por livro, capítulo e versículo
 - [ ] **LEI-04**: Usuário pode buscar texto nas traduções baixadas
-- [ ] **LEI-05**: Usuário pode ajustar tamanho e tipo de fonte
-- [ ] **LEI-06**: Usuário pode alternar modo noturno/dia
+- [x] **LEI-05**: Usuário pode ajustar tamanho e tipo de fonte
+- [x] **LEI-06**: Usuário pode alternar modo noturno/dia
 
 ### Estudo (EST)
 
@@ -37,7 +37,7 @@ Requisitos para o lançamento inicial. Cada um mapeia para fases do roadmap.
 
 ### Offline & Tamanho (OFF)
 
-- [ ] **OFF-01**: App inicial com ~45MB e traduções principais embarcadas
+- [x] **OFF-01**: App inicial com ~45MB e traduções principais embarcadas
 - [ ] **OFF-02**: Traduções adicionais baixáveis sob demanda (sem novo build)
 - [ ] **OFF-03**: Áudios baixados funcionam sem internet
 
@@ -93,12 +93,12 @@ Excluído explicitamente. Documentado para evitar escopo crescente.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LEI-01 | Phase 1 | Pending |
+| LEI-01 | Phase 1 | Complete |
 | LEI-02 | Phase 2 | Pending |
-| LEI-03 | Phase 1 | Pending |
+| LEI-03 | Phase 1 | Complete |
 | LEI-04 | Phase 2 | Pending |
-| LEI-05 | Phase 1 | Pending |
-| LEI-06 | Phase 1 | Pending |
+| LEI-05 | Phase 1 | Complete |
+| LEI-06 | Phase 1 | Complete |
 | EST-01 | Phase 3 | Pending |
 | EST-02 | Phase 3 | Pending |
 | EST-03 | Phase 3 | Pending |
@@ -109,12 +109,13 @@ Excluído explicitamente. Documentado para evitar escopo crescente.
 | PER-02 | Phase 2 | Pending |
 | PER-03 | Phase 2 | Pending |
 | MUL-01 | Phase 3 | Pending |
-| OFF-01 | Phase 1 | Pending |
+| OFF-01 | Phase 1 | Complete |
 | OFF-02 | Phase 2 | Pending |
 | OFF-03 | Phase 3 | Pending |
 | SYN-01 | Phase 3 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 20 total
 - Mapped to phases: 20
 - Unmapped: 0 ✓
