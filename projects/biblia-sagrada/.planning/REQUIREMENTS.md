@@ -10,7 +10,7 @@ Requisitos para o lançamento inicial. Cada um mapeia para fases do roadmap.
 ### Leitura (LEI)
 
 - [x] **LEI-01**: Usuário pode ler qualquer capítulo offline com carregamento instantâneo (<200ms)
-- [ ] **LEI-02**: Usuário pode trocar entre traduções disponíveis com troca instantânea
+- [x] **LEI-02**: Usuário pode trocar entre traduções disponíveis com troca instantânea
 - [x] **LEI-03**: Usuário pode navegar por livro, capítulo e versículo
 - [ ] **LEI-04**: Usuário pode buscar texto nas traduções baixadas
 - [x] **LEI-05**: Usuário pode ajustar tamanho e tipo de fonte
@@ -38,7 +38,7 @@ Requisitos para o lançamento inicial. Cada um mapeia para fases do roadmap.
 ### Offline & Tamanho (OFF)
 
 - [x] **OFF-01**: App inicial com ~45MB e traduções principais embarcadas
-- [ ] **OFF-02**: Traduções adicionais baixáveis sob demanda (sem novo build)
+- [x] **OFF-02**: Traduções adicionais baixáveis sob demanda (sem novo build)
 - [ ] **OFF-03**: Áudios baixados funcionam sem internet
 
 ### Sincronização (SYN)
@@ -94,7 +94,7 @@ Excluído explicitamente. Documentado para evitar escopo crescente.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | LEI-01 | Phase 1 | Complete |
-| LEI-02 | Phase 2 | Pending |
+| LEI-02 | Phase 2 | Complete |
 | LEI-03 | Phase 1 | Complete |
 | LEI-04 | Phase 2 | Pending |
 | LEI-05 | Phase 1 | Complete |
@@ -110,7 +110,7 @@ Excluído explicitamente. Documentado para evitar escopo crescente.
 | PER-03 | Phase 2 | Pending |
 | MUL-01 | Phase 3 | Pending |
 | OFF-01 | Phase 1 | Complete |
-| OFF-02 | Phase 2 | Pending |
+| OFF-02 | Phase 2 | Complete |
 | OFF-03 | Phase 3 | Pending |
 | SYN-01 | Phase 3 | Pending |
 
