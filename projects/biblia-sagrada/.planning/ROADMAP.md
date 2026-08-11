@@ -49,9 +49,16 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 02-01: Troca de traduções + download sob demanda
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02-02: Busca FTS + dicionário + "O que a Bíblia diz"
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 02-03: Marcadores, anotações, hinários, planos de leitura
 
 ### Phase 3: Multimídia e Sincronização
