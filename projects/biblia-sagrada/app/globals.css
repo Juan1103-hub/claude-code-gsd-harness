@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --paper: #faf8f5;
+  --paper-raised: #ffffff;
+  --paper-muted: #f1ede6;
+  --ink: #211d17;
+  --ink-soft: #5c554a;
+  --ink-faint: #8d857a;
+  --accent: #8a6d3b;
+  --line: rgba(33, 29, 23, 0.14);
+}
+
+.dark {
+  --paper: #100f0d;
+  --paper-raised: #191712;
+  --paper-muted: #171510;
+  --ink: #e8e1d5;
+  --ink-soft: #9c9384;
+  --ink-faint: #6d6659;
+  --accent: #c9a961;
+  --line: rgba(232, 225, 213, 0.16);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-paper-muted: var(--paper-muted);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-line: var(--line);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-lora), Georgia, "Times New Roman", serif;
+}
+
+html {
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
+  background: var(--paper);
+  color: var(--ink);
+}

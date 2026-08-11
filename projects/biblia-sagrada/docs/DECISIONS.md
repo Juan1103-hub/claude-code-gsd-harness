@@ -1,5 +1,15 @@
 # Decisões de Projeto - Bíblia Sagrada
 
+## 2026-08-10 - TASK 01-02: Pipeline de dados e cache offline (implementado)
+- **Decisão**: Dados brutos (JSON domínio público) ficam em `data/raw/` (gitignored); `scripts/generate-data.mjs` gera formato compacto em `public/data/` (index.json + 1 arquivo JSON por livro/tradução, versículos `.trim()`). `dataVersion` = hash MD5 do conteúdo (estável entre gerações idênticas). Precache completo de `/data/` no Service Worker (2 Bíblias ~5MB) via `additionalPrecacheEntries` com URLs normalizadas `\ → /` (fix Windows). Cache runtime em IndexedDB (store `chapters` keyPath `[version, book, chapter]`), invalidação por `dataVersion`, carga sob demanda com fetch único por livro, mutex na transição de versão e dedup de cargas concorrentes. `prebuild` garante dados antes de `next build`.
+- **Justificativa**: Precache integral é barato no orçamento de ~45MB e garante offline-first imediato; IndexedDB evita re-fetch a cada leitura e permite invalidar por versão de build.
+- **Status**: Implementado. Code review: APROVADO COM RESSALVAS (1 P2 + 9 P3) — todas corrigidas.
+
+## 2026-08-10 - CORREÇÃO LEGAL: Traduções embarcadas no MVP (substitui ACF/ARC)
+- **Decisão**: Usar **Almeida 1911 (ALM1911)**, **Tradução Brasileira (TB)** e **Bíblia Livre (BLIVRE)** como traduções iniciais — as únicas confirmadas como **domínio público** (†) no catálogo damarals/biblias (licença MIT no repositório, textos sem direito autoral).
+- **Justificativa**: Pesquisa confirmou que ACF (1994, SBTB) e ARC (1995, SBB) **têm direitos autorais de suas editoras** — risco legal real de redistribuir em app público. A regra "apenas conteúdo sem copyright" do MVP exige troca. Escolha inicial: ALM1911 (português arcaico, fiel) + TB (domínio público desde 2010, leitura moderna). BLIVRE disponível como 3ª opção.
+- **Status**: Corrige decisão anterior "ACF/ARC livres" (incorreta). Atualiza REQUIREMENTS/ROADMAP.
+
 ## 2026-08-10 - Mudança de Stack: PWA Next.js (substitui Flutter)
 - **Decisão**: Substituir Flutter/SQLite nativo por Progressive Web App (PWA) em Next.js + React + TypeScript + Tailwind. Dados em IndexedDB; cache offline via Service Worker. Flutter/Android SDK não cabem no disco da máquina de desenvolvimento (11GB livres). App roda na web e é instalável no celular ("Adicionar à tela inicial"), funcionando offline.
 - **Justificativa**: Decisão do usuário — sem espaço para Flutter/Android SDK. A stack web atende multiplataforma (web + celular) e é a padrão deste harness. O primeiro target é Android via PWA instalável.

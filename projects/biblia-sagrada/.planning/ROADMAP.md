@@ -2,11 +2,11 @@
 
 ## Overview
 
-Do zero a um app de Bíblia offline-first competitivo. Fase 1 entrega a fundação: projeto Next.js PWA, texto das traduções livres (ACF/ARC) em IndexedDB e leitor rápido com tema dia/noturno. Fase 2 adiciona troca de traduções, busca, estudo e personalização. Fase 3 completa com áudio offline, vídeos e sincronização. Granularidade coarse: 3 fases, entregas coerentes por fase.
+Do zero a um app de Bíblia offline-first competitivo. Fase 1 entrega a fundação: projeto Next.js PWA, texto das traduções de domínio público (Almeida 1911, Tradução Brasileira) em IndexedDB e leitor rápido com tema dia/noturno. Fase 2 adiciona troca de traduções, busca, estudo e personalização. Fase 3 completa com áudio offline, vídeos e sincronização. Granularidade coarse: 3 fases, entregas coerentes por fase.
 
 ## Phases
 
-- [ ] **Phase 1: Fundação do Leitor** - Projeto Next.js PWA, dados ACF/ARC em IndexedDB, leitor de capítulos instantâneo, tema dia/noturno, fonte ajustável
+- [ ] **Phase 1: Fundação do Leitor** - Projeto Next.js PWA, dados Almeida 1911 + Tradução Brasileira em IndexedDB, leitor de capítulos instantâneo, tema dia/noturno, fonte ajustável
 - [ ] **Phase 2: Estudo e Personalização** - Troca de traduções, busca FTS, dicionário, planos de leitura, "O que a Bíblia diz", marcadores, anotações, hinários
 - [ ] **Phase 3: Multimídia e Sincronização** - Áudio streaming+offline (devocionais, Rota 66), vídeos, sync Supabase
 
@@ -25,9 +25,9 @@ Do zero a um app de Bíblia offline-first competitivo. Fase 1 entrega a fundaç�
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Scaffold Next.js PWA + estrutura do projeto
-- [ ] 01-02: Pipeline de dados (gerar JSON ACF/ARC via parser, embarcar, popular IndexedDB)
-- [ ] 01-03: Leitor de capítulos com tema e configurações de fonte
+- [x] 01-01: Scaffold Next.js PWA + estrutura do projeto
+- [x] 01-02: Pipeline de dados (gerar JSON Almeida 1911 + Tradução Brasileira via parser, embarcar, popular IndexedDB)
+- [x] 01-03: Leitor de capítulos com tema e configurações de fonte
 
 ### Phase 2: Estudo e Personalização
 **Goal**: App com troca de traduções, busca, dicionário, planos, marcadores, anotações e hinários
@@ -69,6 +69,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Fundação do Leitor | 0/3 | Not started | - |
+| 1. Fundação do Leitor | 3/3 | Completed | 11/08/2026 |
 | 2. Estudo e Personalização | 0/3 | Not started | - |
 | 3. Multimídia e Sincronização | 0/2 | Not started | - |

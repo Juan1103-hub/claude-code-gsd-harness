@@ -53,6 +53,11 @@ Adiado para release futuro. Rastreado, mas fora do roadmap atual.
 
 - **LEI-07**: Usuário pode usar NVI, NAA, KJA, NTLH quando licenças forem obtidas
 
+### Traduções com direitos autorais (não utilizáveis)
+
+- **ACF** (Almeida Corrigida Fiel) — © 1994, 1995, 2007, 2011 Sociedade Bíblica Trinitariana do Brasil. SBTB só permite reimpressão de até 1.100 versículos com crédito; Bíblia completa exige autorização escrita. **Não utilizar.**
+- **ARC** (Almeida Revista e Corrigida) — © 1995/2009 Sociedade Bíblica do Brasil. Todos os direitos reservados. **Não utilizar.**
+
 ### Áudio avançado
 
 - **EST-07**: Usuário pode ajustar velocidade de reprodução
@@ -69,10 +74,20 @@ Excluído explicitamente. Documentado para evitar escopo crescente.
 | Feature | Reason |
 |---------|--------|
 | Traduções com copyright (NVI, NAA, KJA, NTLH) | Exigem licença paga; risco legal |
+| ACF (Almeida Corrigida Fiel) | © SBTB 1994/1995/2007/2011; Bíblia completa exige autorização escrita |
+| ARC (Almeida Revista e Corrigida) | © SBB 1995/2009; todos os direitos reservados |
 | Login obrigatório | App usável sem conta; sync é opcional |
 | Publicidade / compras | Decisão estratégica: 100% gratuito |
 | Rede social / fórum | Fora do escopo de leitura |
 | ARA (SBB) no MVP | Restrições de licenciamento — verificar |
+
+## Traduções confirmadas como domínio público (para uso)
+
+| Tradução | Ano | Fonte/licença | Observação |
+|----------|-----|---------------|------------|
+| Almeida 1911 (ALM1911) | 1911 | Domínio público (†) | Português arcaico, fiel |
+| Tradução Brasileira (TB) | 1917/2010 | Domínio público (†), SBB declarou | Leitura moderna |
+| Bíblia Livre (BLIVRE) | 2018 | Domínio público (†) | Alternativa
 
 ## Traceability
 
