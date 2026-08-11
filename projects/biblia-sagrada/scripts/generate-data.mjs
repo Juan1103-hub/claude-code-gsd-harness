@@ -11,6 +11,7 @@ const OUT_DIR = path.join(PROJECT_ROOT, "public", "data");
 const VERSIONS = [
   { code: "tb", label: "Tradução Brasileira", shortLabel: "TB" },
   { code: "alm1911", label: "João Ferreira de Almeida (1911)", shortLabel: "ALM 1911" },
+  { code: "blivre", label: "Bíblia Livre", shortLabel: "BLIVRE" },
 ];
 
 function chapterCounts(books) {
