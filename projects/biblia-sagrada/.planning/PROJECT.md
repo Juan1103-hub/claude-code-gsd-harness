@@ -18,15 +18,16 @@ Aplicativo de Bíblia Sagrada gratuito, multiplataforma e 100% offline-first, co
 
 ### Validated
 
-(None yet — ship to validate)
+- ✅ **LEI-01**: Usuário pode ler a Bíblia offline com carregamento de capítulo instantâneo (<200ms) — Phase 1
+- ✅ **LEI-03**: Usuário pode navegar por livro, capítulo e versículo — Phase 1
+- ✅ **LEI-05**: Usuário pode ajustar tamanho/tipo de fonte e alternar modo noturno — Phase 1
+- ✅ **LEI-06**: Usuário pode alternar modo noturno/dia — Phase 1
+- ✅ **OFF-01**: App inicial ~45MB com traduções principais embarcadas — Phase 1
 
 ### Active
 
-- [ ] **LEI-01**: Usuário pode ler a Bíblia offline com carregamento de capítulo instantâneo (<200ms)
 - [ ] **LEI-02**: Usuário pode trocar entre traduções disponíveis (domínio público: ALM1911, TB, BLIVRE) instantaneamente
-- [ ] **LEI-03**: Usuário pode navegar por livro, capítulo e versículo
 - [ ] **LEI-04**: Usuário pode buscar texto nas traduções baixadas
-- [ ] **LEI-05**: Usuário pode ajustar tamanho/tipo de fonte e alternar modo noturno
 - [ ] **EST-01**: Usuário pode ouvir devocionais em áudio (streaming)
 - [ ] **EST-02**: Usuário pode baixar áudios para ouvir offline
 - [ ] **EST-03**: Usuário pode acessar o comentário bíblico "Rota 66" em áudio
@@ -55,7 +56,7 @@ Aplicativo de Bíblia Sagrada gratuito, multiplataforma e 100% offline-first, co
 - Stack definida: Next.js + React + TypeScript + Tailwind (PWA). Decisão do usuário: app web que abre em celular, sem instalar Flutter/Android SDK (sem espaço em disco).
 - Armazenamento offline: IndexedDB (com lib leve) para textos, cache do Service Worker para assets; FTS no navegador para busca
 - Usuário é vibe coder: não define specs formais, decisões técnicas delegadas ao agente
-- Pesquisa 2026 confirmou: DBs SQLite separados por tradução baixados sob demanda como .zip é o padrão offline-first premiado (al_hadith); `bible_parser_flutter` gera DBs a partir de XML OSIS/USFX; FTS5 + trigram tokenizer para busca em milhões de versículos; `sqlite_async` (WAL, pool de conexões em isolates) otimiza performance vs sqflite puro
+- Phase 1 (11/08/2026): dados ALM1911+TB em JSON embarcado `public/data/**` via `collectPublicFiles()`; FTS/IndexedDB search a definir na Phase 2
 - Domínio público confirmado: Almeida 1911 (†), Tradução Brasileira (†), Bíblia Livre (†). ACF é © SBTB, ARC é © SBB — não utilizáveis sem licença
 - Concorrente: app Mobidic como referência de feature set
 
@@ -76,7 +77,8 @@ Aplicativo de Bíblia Sagrada gratuito, multiplataforma e 100% offline-first, co
 | Traduções de domínio público (ALM1911 + TB) no MVP | ACF/ARC são © SBTB/SBB — risco legal; domínio público publicável grátis | Decided (2026-08-10) |
 | Textos baixados sob demanda (IndexedDB) | App leve (~45MB), controle de armazenamento, atualização sem novo build | — Pending |
 | Busca FTS no navegador | Busca instantânea em milhões de versículos | — Pending |
-| PWA instalável + offline (Service Worker) | Funciona offline no celular sem loja de apps | — Pending |
+| PWA instalável + offline (Service Worker) | Funciona offline no celular sem loja de apps | Decided (2026-08-11) — Serwist + `collectPublicFiles()` precacheia `/data/**` |
+| Bundle zero áudio | Mantém leve; áudio baixável por demanda | — Pending |
 | Bundle zero áudio | Mantém leve; áudio baixável por demanda | — Pending |
 | Supabase para sync opcional | Sincronização de estudo sem infraestrutura própria | — Pending |
 
@@ -98,4 +100,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-10 after initialization*
+*Last updated: 2026-08-11 after Phase 1*

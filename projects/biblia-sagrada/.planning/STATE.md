@@ -1,11 +1,25 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: in_progress
+last_updated: "2026-08-11T12:50:02.731Z"
+progress:
+  total_phases: 1
+  completed_phases: 1
+  total_plans: 0
+  completed_plans: 0
+current_phase_name: Estudo e Personalização
+---
+
 # STATE: Bíblia Sagrada
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-10)
+See: .planning/PROJECT.md (updated 2026-08-11)
 
 **Core value:** Carregamento de texto ultra-rápido e leitura confortável, 100% offline, app leve (~45MB)
-**Current focus:** Phase 1 — Fundação do Leitor (plans 01-01 a 01-03 implementados e validados)
+**Current focus:** Phase 2 — Estudo e Personalização (pronta para planejar)
 
 ## Current State
 
@@ -15,13 +29,14 @@ See: .planning/PROJECT.md (updated 2026-08-10)
   - Mudança de arquitetura: originalmente Flutter; usuário optou por web (sem espaço em disco para Flutter/Android SDK)
 - Plataforma inicial: Android primeiro (via PWA instalável no celular)
 
-### Phase 1 — Implementado (11/08/2026)
+### Phase 1 — Implementado, Verificado e UAT Aprovado (11/08/2026)
 
 - Scaffold Next.js 16 PWA + Serwist (plans 01-01 a 01-03): `app/` (App Router na raiz), `src/components/` (reader, book-picker), `src/lib/` (bible.ts IndexedDB, settings.ts)
 - Pipeline de dados: `scripts/generate-data.mjs` gera `public/data/**` (ALM1911 + TB, 66 livros cada) + `index.json`
 - Leitor: capítulo instantâneo via IndexedDB, tema dia/noturno, fonte ajustável (0.8–1.6), picker de livro/capítulo, navegação anterior/próximo, posição persistida
 - PWA offline: `next.config.ts` (único config) com `collectPublicFiles()` precacheia `/data/**`; `SerwistProvider` em `app/layout.tsx` registra SW; fallback `/~offline`
 - **Validação (todos PASS):** `npm run lint` ✅, `npx tsc --noEmit` ✅, `npm run build` ✅, E2E Playwright ✅ (Gn 1:1, tema dark, fonte 18→19.84px, navegação, picker João 3:16, reload offline sem erros de console)
+- **Verificação GSD:** `01-VERIFICATION.md` passed (6/6 truths), `01-UAT.md` complete (7/7 auto-pass), commits `577d3b0` e `c5d7e97`
 - Servidor `next start` HTTP 200 na porta 3000
 
 ### Correções aplicadas nesta rodada
@@ -33,8 +48,7 @@ See: .planning/PROJECT.md (updated 2026-08-10)
 
 ## Next Action
 
-- Registrar decisões e commits da Fase 1 em git (git add/commit quando autorizado)
-- Executar `/gsd-verify-work 1` e `/gsd-ship 1` para fechar a Fase 1
+- Fase 1 completa (implementada, verificada, UAT aprovado). Commit `c5d7e97`.
 - Iniciar Phase 2 (Estudo e Personalização) com `/gsd-discuss-phase 2`
 
 ## Decisions
