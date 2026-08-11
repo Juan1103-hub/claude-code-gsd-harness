@@ -2,10 +2,22 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getChapter, getIndex, type BibleIndex, type Chapter } from "@/lib/bible";
-import { applyTheme, readFontScale, readTheme, writeFontScale, FONT_SCALE_MAX, FONT_SCALE_MIN, FONT_SCALE_STEP, type Theme } from "@/lib/settings";
+import {
+  applyTheme,
+  readFontScale,
+  readTheme,
+  readVersion,
+  writeFontScale,
+  writeVersion,
+  FONT_SCALE_MAX,
+  FONT_SCALE_MIN,
+  FONT_SCALE_STEP,
+  SUPPORTED_VERSIONS,
+  type Theme,
+} from "@/lib/settings";
 import BookPicker from "@/components/book-picker";
+import VersionPicker from "@/components/version-picker";
 
-const VERSION = "tb";
 const LAST_POS_KEY = "bs-last-pos";
 
 interface Position {
@@ -35,14 +47,25 @@ function initialPosition(index: BibleIndex): Position {
   return { bookId: 0, chapter: 0 };
 }
 
+/** Lazy init: URL ?v= é o estado navegável (D-02); fallback localStorage bs-version. */
+function initialVersion(): string {
+  if (typeof window === "undefined") return "tb";
+  const params = new URLSearchParams(window.location.search);
+  const v = params.get("v");
+  if (v && (SUPPORTED_VERSIONS as readonly string[]).includes(v)) return v;
+  return readVersion();
+}
+
 export default function Reader() {
   const [index, setIndex] = useState<BibleIndex | null>(null);
   const [pos, setPos] = useState<Position>({ bookId: 0, chapter: 0 });
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [version, setVersion] = useState<string>(() => initialVersion());
   const [theme, setTheme] = useState<Theme>(() => readTheme());
   const [fontScale, setFontScale] = useState(() => readFontScale());
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [versionPickerOpen, setVersionPickerOpen] = useState(false);
   const [offline, setOffline] = useState(false);
 
   useEffect(() => {
@@ -52,6 +75,12 @@ export default function Reader() {
         if (cancelled) return;
         setIndex(idx);
         setPos(initialPosition(idx));
+        // URL é o estado navegável — se ?v= veio no deep-link, ele vence (D-02).
+        const params = new URLSearchParams(window.location.search);
+        const v = params.get("v");
+        if (v && (SUPPORTED_VERSIONS as readonly string[]).includes(v)) {
+          setVersion(v);
+        }
       })
       .catch(() => {
         if (!cancelled) setStatus("error");
@@ -75,7 +104,7 @@ export default function Reader() {
   useEffect(() => {
     if (!index) return;
     let cancelled = false;
-    getChapter(VERSION, pos.bookId, pos.chapter)
+    getChapter(version, pos.bookId, pos.chapter)
       .then((result) => {
         if (cancelled) return;
         if (!result) {
@@ -88,8 +117,11 @@ export default function Reader() {
         const url = new URL(window.location.href);
         url.searchParams.set("b", String(result.book.id));
         url.searchParams.set("c", String(result.chapter));
+        url.searchParams.set("v", version);
+        // Pitfall 4: replaceState exige string, nunca objeto URL (DataCloneError).
         window.history.replaceState(null, "", url.toString());
         localStorage.setItem(LAST_POS_KEY, JSON.stringify({ bookId: result.book.id, chapter: result.chapter }));
+        writeVersion(version);
       })
       .catch(() => {
         if (!cancelled) setStatus("error");
@@ -97,17 +129,20 @@ export default function Reader() {
     return () => {
       cancelled = true;
     };
-  }, [index, pos]);
+  }, [index, pos, version]);
 
-  const prefetchAdjacent = useCallback((current: Chapter) => {
-    const { book, chapter: ch } = current;
-    if (ch === 0 && book.id > 0) {
-      getChapter(VERSION, book.id - 1, 0).catch(() => {});
-    }
-    if (ch === book.chapters - 1 && book.id < 65) {
-      getChapter(VERSION, book.id + 1, 0).catch(() => {});
-    }
-  }, []);
+  const prefetchAdjacent = useCallback(
+    (current: Chapter) => {
+      const { book, chapter: ch } = current;
+      if (ch === 0 && book.id > 0) {
+        getChapter(version, book.id - 1, 0).catch(() => {});
+      }
+      if (ch === book.chapters - 1 && book.id < 65) {
+        getChapter(version, book.id + 1, 0).catch(() => {});
+      }
+    },
+    [version],
+  );
 
   useEffect(() => {
     if (status === "ready" && chapter) prefetchAdjacent(chapter);
@@ -161,6 +196,11 @@ export default function Reader() {
     [],
   );
 
+  const handleVersionChange = useCallback((code: string) => {
+    // O efeito de capítulo re-renderiza com a nova versão; sem reload, sem scroll reset.
+    setVersion(code);
+  }, []);
+
   if (!index) {
     return (
       <Shell>
@@ -178,9 +218,11 @@ export default function Reader() {
       <Shell>
         <Header
           title={chapter ? `${chapter.book.name} ${chapter.chapter + 1}` : "Bíblia Sagrada"}
+          versionLabel={chapter?.version.shortLabel ?? (index.versions.find((v) => v.code === version)?.shortLabel ?? version)}
           theme={theme}
           fontScale={fontScale}
           onOpenPicker={() => setPickerOpen(true)}
+          onOpenVersionPicker={() => setVersionPickerOpen(true)}
           onToggleTheme={toggleTheme}
           onFontDown={() => bumpFont(-FONT_SCALE_STEP)}
           onFontUp={() => bumpFont(FONT_SCALE_STEP)}
@@ -232,6 +274,13 @@ export default function Reader() {
         onSelect={goTo}
         onClose={() => setPickerOpen(false)}
       />
+      <VersionPicker
+        open={versionPickerOpen}
+        versions={index.versions}
+        current={version}
+        onSelect={handleVersionChange}
+        onClose={() => setVersionPickerOpen(false)}
+      />
     </>
   );
 }
@@ -242,17 +291,21 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function Header({
   title,
+  versionLabel,
   theme,
   fontScale,
   onOpenPicker,
+  onOpenVersionPicker,
   onToggleTheme,
   onFontDown,
   onFontUp,
 }: {
   title: string;
+  versionLabel: string;
   theme: Theme;
   fontScale: number;
   onOpenPicker: () => void;
+  onOpenVersionPicker: () => void;
   onToggleTheme: () => void;
   onFontDown: () => void;
   onFontUp: () => void;
@@ -275,6 +328,15 @@ function Header({
           title={title}
         >
           {title}
+        </button>
+        <button
+          type="button"
+          onClick={onOpenVersionPicker}
+          className="flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-xs font-semibold text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+          aria-label="Trocar tradução"
+          title={`Trocar tradução (${versionLabel})`}
+        >
+          {versionLabel}
         </button>
         <div className="flex items-center">
           <span className="hidden h-5 w-px bg-line sm:block" aria-hidden="true" />

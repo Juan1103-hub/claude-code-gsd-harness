@@ -1,5 +1,9 @@
 export type Theme = "light" | "dark";
 
+export const VERSION_KEY = "bs-version";
+export const SUPPORTED_VERSIONS = ["tb", "alm1911", "blivre"] as const;
+export type VersionCode = (typeof SUPPORTED_VERSIONS)[number];
+
 const THEME_KEY = "bs-theme";
 const FONT_SCALE_KEY = "bs-font-scale";
 
@@ -30,4 +34,15 @@ export function readFontScale(): number {
 
 export function writeFontScale(scale: number): void {
   localStorage.setItem(FONT_SCALE_KEY, String(scale));
+}
+
+export function readVersion(): string {
+  if (typeof window === "undefined") return "tb";
+  const stored = localStorage.getItem(VERSION_KEY);
+  if (stored && (SUPPORTED_VERSIONS as readonly string[]).includes(stored)) return stored;
+  return "tb";
+}
+
+export function writeVersion(code: string): void {
+  localStorage.setItem(VERSION_KEY, code);
 }
