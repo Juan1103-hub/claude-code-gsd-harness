@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "prebuild": "node scripts/generate-data.mjs",
+    "prebuild": "node scripts/generate-data.mjs && node scripts/search-build.mjs && node scripts/study-build.mjs",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
@@ -14,6 +14,7 @@
     "@serwist/next": "^9.5.12",
     "@serwist/precaching": "^9.5.12",
     "@serwist/window": "^9.5.12",
+    "minisearch": "^7.2.0",
     "next": "16.3.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
