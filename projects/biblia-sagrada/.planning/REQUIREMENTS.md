@@ -22,14 +22,14 @@ Requisitos para o lançamento inicial. Cada um mapeia para fases do roadmap.
 - [ ] **EST-02**: Usuário pode baixar áudios para ouvir offline
 - [ ] **EST-03**: Usuário pode acessar o comentário bíblico "Rota 66" em áudio
 - [x] **EST-04**: Usuário pode consultar dicionário bíblico integrado
-- [ ] **EST-05**: Usuário pode usar planos de leitura progressivos e acompanhar progresso
+- [x] **EST-05**: Usuário pode usar planos de leitura progressivos e acompanhar progresso
 - [x] **EST-06**: Usuário pode acessar a seção "O que a Bíblia diz"
 
 ### Personalização (PER)
 
-- [ ] **PER-01**: Usuário pode marcar versículos com cores diferentes
-- [ ] **PER-02**: Usuário pode criar e ver anotações por versículo
-- [ ] **PER-03**: Usuário pode acessar hinários (texto)
+- [x] **PER-01**: Usuário pode marcar versículos com cores diferentes
+- [x] **PER-02**: Usuário pode criar e ver anotações por versículo
+- [x] **PER-03**: Usuário pode acessar hinários (texto)
 
 ### Multimídia (MUL)
 
@@ -103,11 +103,11 @@ Excluído explicitamente. Documentado para evitar escopo crescente.
 | EST-02 | Phase 3 | Pending |
 | EST-03 | Phase 3 | Pending |
 | EST-04 | Phase 2 | Complete |
-| EST-05 | Phase 2 | Pending |
+| EST-05 | Phase 2 | Complete |
 | EST-06 | Phase 2 | Complete |
-| PER-01 | Phase 2 | Pending |
-| PER-02 | Phase 2 | Pending |
-| PER-03 | Phase 2 | Pending |
+| PER-01 | Phase 2 | Complete |
+| PER-02 | Phase 2 | Complete |
+| PER-03 | Phase 2 | Complete |
 | MUL-01 | Phase 3 | Pending |
 | OFF-01 | Phase 1 | Complete |
 | OFF-02 | Phase 2 | Complete |

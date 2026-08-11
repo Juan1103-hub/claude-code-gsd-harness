@@ -46,13 +46,13 @@ Plans:
   4. Usuário consulta dicionário, usa plano de leitura com progresso e acessa "O que a Bíblia diz"
   5. Usuário baixa tradução adicional sob demanda e lê offline
 
-**Plans**: 2/3 plans executed
+**Plans**: 3/3 plans executed
 
 Plans:
 
 - [x] 02-01-PLAN.md
 - [x] 02-02-PLAN.md
-- [ ] 02-03-PLAN.md
+- [x] 02-03-PLAN.md
 
 **Wave 1**
 
@@ -60,7 +60,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-02: Busca FTS + dicionário + "O que a Bíblia diz"
+- [x] 02-02: Busca FTS + dicionário + "O que a Bíblia diz"
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -94,5 +94,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Fundação do Leitor | 1/0 | Complete    | 2026-08-11 |
-| 2. Estudo e Personalização | 2/3 | In Progress|  |
+| 2. Estudo e Personalização | 3/3 | In Progress|  |
 | 3. Multimídia e Sincronização | 0/2 | Not started | - |
