@@ -28,6 +28,18 @@ function collectPublicFiles(): { url: string; revision: string }[] {
       if (dirent.name.startsWith("sw")) continue;
       const full = path.join(dir, dirent.name);
       const childRel = path.posix.join(rel, dirent.name);
+      // D-03: BLIVRE (public/data/blivre/**) e o índice de busca blivre
+      // (public/data/search/blivre.json — plano 02-02) NÃO entram no precache
+      // do Service Worker. O app baixa por demanda para o IndexedDB; o IDB é a
+      // fonte offline. Sem este filtro, `collectPublicFiles()` embarca ~3,8 MB
+      // da BLIVRE + índice → viola o ~45MB (RESEARCH §Pitfall 2).
+      //
+      // childRel é o caminho relativo à raiz de `public/` (ex.: "data/blivre/Gn.json",
+      // "data/search/blivre.json"). O walker desce a partir de "" → multiplica por
+      // "data/...", então o prefixo correto é "data/blivre" ou "data/search/blivre".
+      if (childRel.startsWith("data/blivre") || childRel.startsWith("data/search/blivre")) {
+        continue;
+      }
       if (dirent.isDirectory()) {
         walk(full, childRel);
       } else if (dirent.isFile()) {
