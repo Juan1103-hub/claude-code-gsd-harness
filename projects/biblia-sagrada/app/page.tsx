@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { BookOpen, Search, GraduationCap } from "lucide-react";
 import Reader from "@/components/reader";
 import SearchView from "@/components/search-view";
@@ -11,12 +11,26 @@ import { readVersion } from "@/lib/settings";
 
 type View = "reader" | "search" | "study";
 
+const VIEW_KEY = "bs-active-view";
+
+function readView(): View {
+  if (typeof window === "undefined") return "reader";
+  const stored = localStorage.getItem(VIEW_KEY);
+  if (stored === "reader" || stored === "search" || stored === "study") return stored;
+  return "reader";
+}
+
 export default function Home() {
-  const [view, setView] = useState<View>("reader");
+  const [view, setView] = useState<View>(readView);
   const [index, setIndex] = useState<BibleIndex | null>(null);
 
   useEffect(() => {
     getIndex().then(setIndex).catch(() => {});
+  }, []);
+
+  const setAndPersist = useCallback((v: View) => {
+    setView(v);
+    localStorage.setItem(VIEW_KEY, v);
   }, []);
 
   const handleNavigate = (
@@ -24,7 +38,7 @@ export default function Home() {
     chapter: number,
     version?: string,
   ) => {
-    setView("reader");
+    setAndPersist("reader");
     const url = new URL(window.location.href);
     url.searchParams.set("b", String(bookId));
     url.searchParams.set("c", String(chapter));
@@ -48,7 +62,7 @@ export default function Home() {
           <StudyView
             index={index}
             onNavigate={(b, c) => {
-              setView("reader");
+              setAndPersist("reader");
               const url = new URL(window.location.href);
               url.searchParams.set("b", String(b));
               url.searchParams.set("c", String(c));
@@ -69,19 +83,19 @@ export default function Home() {
             label="Leitura"
             icon={<BookOpen size={20} />}
             active={view === "reader"}
-            onClick={() => setView("reader")}
+            onClick={() => setAndPersist("reader")}
           />
           <TabButton
             label="Busca"
             icon={<Search size={20} />}
             active={view === "search"}
-            onClick={() => setView("search")}
+            onClick={() => setAndPersist("search")}
           />
           <TabButton
             label="Estudo"
             icon={<GraduationCap size={20} />}
             active={view === "study"}
-            onClick={() => setView("study")}
+            onClick={() => setAndPersist("study")}
           />
         </div>
       </nav>

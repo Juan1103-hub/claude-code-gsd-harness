@@ -367,6 +367,7 @@ export default function Reader() {
         verse={verseActionsVerse}
         version={version}
         label={verseActionsVerse ? `${chapter?.book.abbrev ?? ""} ${verseActionsVerse.chapter + 1}:${verseActionsVerse.verse + 1}` : ""}
+        verseText={verseActionsVerse && chapter ? chapter.verses[verseActionsVerse.verse] : undefined}
         initial={verseActionsVerse ? studyRecords.find((r) => r.ref.verse === verseActionsVerse.verse) ?? null : null}
         onClose={() => setVerseActionsOpen(false)}
         onChanged={() => {

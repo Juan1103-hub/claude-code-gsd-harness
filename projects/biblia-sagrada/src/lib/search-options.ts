@@ -22,34 +22,27 @@ export const SEARCH_OPTIONS: Options<SearchDoc> = {
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase();
+    // Stopwords mínimas: só palavras curtas e muito comuns que poluem a busca.
     const STOP = new Set([
       "a",
+      "o",
+      "e",
       "de",
       "do",
       "da",
       "em",
-      "e",
-      "o",
+      "se",
       "os",
       "as",
-      "um",
-      "uma",
-      "que",
-      "para",
-      "dos",
-      "das",
-      "nao",
-      "se",
-      "com",
     ]);
-    if (STOP.has(normalized) || !normalized) return null;
+    if (STOP.has(normalized) || normalized.length < 2) return null;
     return normalized;
   },
 };
 
 export const SEARCH_QUERY_OPTS: SearchOptions = {
   prefix: true,
-  fuzzy: 0.1,
+  fuzzy: 0.2,
   combineWith: "AND",
 };
 
@@ -65,24 +58,16 @@ export function normalizeTerm(term: string): string {
     .toLowerCase();
   const STOP = new Set([
     "a",
+    "o",
+    "e",
     "de",
     "do",
     "da",
     "em",
-    "e",
-    "o",
+    "se",
     "os",
     "as",
-    "um",
-    "uma",
-    "que",
-    "para",
-    "dos",
-    "das",
-    "nao",
-    "se",
-    "com",
   ]);
-  if (STOP.has(normalized) || !normalized) return "";
+  if (STOP.has(normalized) || normalized.length < 2) return "";
   return normalized;
 }

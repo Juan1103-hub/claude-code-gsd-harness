@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Copy, Check } from "lucide-react";
 import type { StudyRecord } from "@/lib/bible";
 import { deleteStudyRecord, putStudyRecord } from "@/lib/bible";
 
@@ -18,6 +18,7 @@ interface VerseActionsProps {
   verse: { book: number; chapter: number; verse: number } | null;
   version: string;
   label: string;
+  verseText?: string;
   initial: StudyRecord | null;
   onClose: () => void;
   onChanged: () => void;
@@ -28,11 +29,13 @@ export default function VerseActions({
   verse,
   version,
   label,
+  verseText,
   initial,
   onClose,
   onChanged,
 }: VerseActionsProps) {
   const [annotation, setAnnotation] = useState(initial?.text ?? "");
+  const [copied, setCopied] = useState(false);
 
   const escHandler = useCallback(
     (e: KeyboardEvent) => {
@@ -79,6 +82,20 @@ export default function VerseActions({
     await deleteStudyRecord(id);
     onChanged();
   }, [id, onChanged]);
+
+  const copyVerse = useCallback(async () => {
+    if (!verse) return;
+    const header = `${label} — ${version.toUpperCase()}`;
+    const body = verseText ?? "";
+    const full = body ? `${body}\n\n${header}` : header;
+    try {
+      await navigator.clipboard.writeText(full);
+    } catch {
+      /* clipboard indisponível */
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }, [verse, label, version, verseText]);
 
   if (!open || !verse) return null;
 
@@ -147,6 +164,15 @@ export default function VerseActions({
             className="mb-3 w-full rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-accent"
           >
             Salvar anotação
+          </button>
+
+          <button
+            type="button"
+            onClick={copyVerse}
+            className="mb-3 flex w-full items-center justify-center gap-2 rounded-full border border-line px-4 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            {copied ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
+            {copied ? "Copiado!" : "Copiar versículo"}
           </button>
 
           {initial && (
