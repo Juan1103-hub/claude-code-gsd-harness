@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Menu, Sun, Moon, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import { getChapter, getDownloadedVersions, getIndex, getStudyRecords, type BibleIndex, type Chapter, type StudyRecord } from "@/lib/bible";
 import {
   applyTheme,
@@ -382,7 +383,7 @@ function Header({
           className="flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
           aria-label="Escolher livro e capítulo"
         >
-          ☰
+          <Menu size={20} />
         </button>
         <button
           type="button"
@@ -413,7 +414,7 @@ function Header({
             label={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo noturno"}
             onClick={onToggleTheme}
           >
-            {theme === "dark" ? "☾" : "☀"}
+            {theme === "dark" ? <Moon size={20} /> : <Sun size={20} />}
           </IconButton>
         </div>
       </div>
@@ -479,8 +480,8 @@ function ChapterView({
                 <sup className="mr-2 select-none text-[0.6em] font-semibold text-accent">{i + 1}</sup>
                 {verse}
                 {hasAnnotation && (
-                  <span className="ml-1 text-xs text-accent" aria-label="Tem anotação">
-                    ✎
+                  <span className="ml-1 inline-flex text-xs text-accent" aria-label="Tem anotação">
+                    <Pencil size={12} />
                   </span>
                 )}
               </span>
@@ -515,7 +516,8 @@ function Footer({
           disabled={!hasPrev}
           className="flex h-12 items-center justify-center gap-1 rounded-full text-sm font-medium text-ink transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-35"
         >
-          ‹ Anterior
+          <ChevronLeft size={16} />
+          Anterior
         </button>
         <button
           type="button"
@@ -523,7 +525,7 @@ function Footer({
           disabled={!hasNext}
           className="flex h-12 items-center justify-center gap-1 rounded-full text-sm font-medium text-ink transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-35"
         >
-          Próximo ›
+          Próximo <ChevronRight size={16} />
         </button>
       </div>
     </nav>

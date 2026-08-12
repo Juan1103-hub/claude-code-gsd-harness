@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ChevronDown, ChevronRight, Check } from "lucide-react";
 import type { BibleIndex, PlanProgress } from "@/lib/bible";
 import { getAllStudyRecords, getPlanProgress, setPlanProgress } from "@/lib/bible";
 import { getDictionary, getThemes, getHymns, getPlans, type DictionaryEntry, type Theme, type Hymn, type Plan } from "@/lib/study";
@@ -85,7 +86,7 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-6 sm:px-8">
-      <div className="mb-4 flex gap-2 border-b border-line">
+      <div className="mb-4 flex gap-2 overflow-x-auto border-b border-line">
         <TabButton
           label="Dicionário"
           active={tab === "dicionario"}
@@ -161,7 +162,11 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                   {theme.title}
                 </span>
                 <span className="text-sm text-ink-soft">
-                  {expandedTheme === theme.id ? "▾" : "▸"}
+                  {expandedTheme === theme.id ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
                 </span>
               </button>
               {expandedTheme === theme.id && (
@@ -207,7 +212,11 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                   {hymn.title}
                 </span>
                 <span className="text-sm text-ink-soft">
-                  {expandedHymn === hymn.id ? "▾" : "▸"}
+                  {expandedHymn === hymn.id ? (
+                    <ChevronDown size={16} />
+                  ) : (
+                    <ChevronRight size={16} />
+                  )}
                 </span>
               </button>
               {expandedHymn === hymn.id && (
@@ -274,7 +283,11 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                       {plan.title}
                     </span>
                     <span className="text-sm text-ink-soft">
-                      {expandedPlan === plan.id ? "▾" : "▸"}
+                      {expandedPlan === plan.id ? (
+                        <ChevronDown size={16} />
+                      ) : (
+                        <ChevronRight size={16} />
+                      )}
                     </span>
                   </div>
                   <p className="text-xs text-ink-soft">{plan.description}</p>
@@ -283,7 +296,14 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                       <span>{completedDays.length}/{plan.totalDays} dias</span>
                       <span>{percent}%</span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-paper-muted">
+                    <div
+                      className="h-2 w-full overflow-hidden rounded-full bg-paper-muted"
+                      role="progressbar"
+                      aria-valuenow={percent}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`${percent}% concluído`}
+                    >
                       <div
                         className="h-full rounded-full bg-accent transition-[width]"
                         style={{ width: `${percent}%` }}
@@ -314,13 +334,19 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                                   return next;
                                 });
                               }}
-                              className={`rounded-full px-3 py-1 text-xs font-medium transition-opacity hover:opacity-90 ${
+                              className={`flex min-h-9 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-90 ${
                                 isCompleted
                                   ? "bg-accent text-white"
                                   : "border border-line bg-paper text-ink-soft"
                               }`}
                             >
-                              {isCompleted ? "✓ Concluído" : "Marcar concluído"}
+                              {isCompleted ? (
+                                <>
+                                  <Check size={14} /> Concluído
+                                </>
+                              ) : (
+                                "Marcar concluído"
+                              )}
                             </button>
                           </div>
                           <div className="space-y-1">
@@ -371,7 +397,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       aria-current={active}
-      className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+      className={`min-h-11 whitespace-nowrap border-b-2 px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
         active
           ? "border-accent text-accent"
           : "border-transparent text-ink-soft hover:border-line hover:text-ink"

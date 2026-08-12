@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ChevronLeft, X } from "lucide-react";
 import type { BibleIndex } from "@/lib/bible";
 
 interface BookPickerProps {
@@ -70,7 +71,7 @@ export default function BookPicker({ open, index, current, onSelect, onClose }: 
               className="flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
               aria-label="Voltar para a lista de livros"
             >
-              ‹
+              <ChevronLeft size={20} />
             </button>
           )}
           <h2 className="flex-1 truncate text-center text-sm font-medium text-ink-soft">
@@ -82,7 +83,7 @@ export default function BookPicker({ open, index, current, onSelect, onClose }: 
             className="flex h-11 min-w-11 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
             aria-label="Fechar"
           >
-            ✕
+            <X size={20} />
           </button>
         </div>
 

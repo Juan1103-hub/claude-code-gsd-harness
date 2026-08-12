@@ -61,7 +61,7 @@ export default function SearchView({
     const regex = new RegExp(`(${normalized})`, "gi");
     const parts = text.split(regex);
     return parts.map((part, i) =>
-      regex.test(part) ? (
+      i % 2 === 1 ? (
         <mark key={i} className="bg-accent/20 text-ink">
           {part}
         </mark>
@@ -86,7 +86,7 @@ export default function SearchView({
           value={version}
           onChange={(e) => setVersion(e.target.value)}
           aria-label="Tradução"
-          className="rounded-xl border border-line bg-paper px-3 py-2.5 text-sm font-medium text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+          className="rounded-xl border border-line bg-paper px-3 py-2.5 text-base font-medium text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
         >
           {index.versions.map((v) => (
             <option key={v.code} value={v.code}>

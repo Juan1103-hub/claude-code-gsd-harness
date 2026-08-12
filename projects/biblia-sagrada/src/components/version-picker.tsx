@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+import { X } from "lucide-react";
 import type { BibleVersionMeta } from "@/lib/bible";
 
 interface VersionPickerProps {
@@ -59,7 +60,7 @@ export default function VersionPicker({
             className="flex h-11 min-w-11 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
             aria-label="Fechar"
           >
-            ✕
+            <X size={20} />
           </button>
         </div>
 
@@ -69,12 +70,19 @@ export default function VersionPicker({
             const isDownloaded = downloaded.includes(version.code);
             const isBlivre = version.code === "blivre";
             return (
-              <button
+              <div
                 key={version.code}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => pick(version.code)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    pick(version.code);
+                  }
+                }}
                 aria-current={isCurrent}
-                className={`flex min-h-12 w-full items-center justify-between gap-2 rounded-xl px-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+                className={`flex min-h-12 w-full cursor-pointer items-center justify-between gap-2 rounded-xl px-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
                   isCurrent ? "bg-accent text-white" : "text-ink-soft hover:bg-paper-muted hover:text-ink"
                 }`}
               >
@@ -100,20 +108,19 @@ export default function VersionPicker({
                     </span>
                   )}
                   {!isCurrent && isBlivre && !isDownloaded && (
-                    <span
-                      role="button"
-                      tabIndex={-1}
+                    <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         onManageDownload("blivre");
                       }}
-                      className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90"
+                      className="rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-accent"
                     >
                       Baixar
-                    </span>
+                    </button>
                   )}
                 </span>
-              </button>
+              </div>
             );
           })}
         </div>

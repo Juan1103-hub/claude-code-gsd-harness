@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { BookOpen, Search, GraduationCap } from "lucide-react";
 import Reader from "@/components/reader";
 import SearchView from "@/components/search-view";
 import StudyView from "@/components/study-view";
@@ -63,19 +64,19 @@ export default function Home() {
         <div className="mx-auto grid w-full max-w-3xl grid-cols-3 gap-1 px-3 py-2">
           <TabButton
             label="Leitura"
-            icon="📖"
+            icon={<BookOpen size={20} />}
             active={view === "reader"}
             onClick={() => setView("reader")}
           />
           <TabButton
             label="Busca"
-            icon="🔍"
+            icon={<Search size={20} />}
             active={view === "search"}
             onClick={() => setView("search")}
           />
           <TabButton
             label="Estudo"
-            icon="📚"
+            icon={<GraduationCap size={20} />}
             active={view === "study"}
             onClick={() => setView("study")}
           />
@@ -92,7 +93,7 @@ function TabButton({
   onClick,
 }: {
   label: string;
-  icon: string;
+  icon: ReactNode;
   active: boolean;
   onClick: () => void;
 }) {
@@ -107,7 +108,7 @@ function TabButton({
           : "text-ink-soft hover:bg-paper-muted hover:text-ink"
       }`}
     >
-      <span className="text-lg">{icon}</span>
+      <span className="flex items-center justify-center">{icon}</span>
       <span>{label}</span>
     </button>
   );
