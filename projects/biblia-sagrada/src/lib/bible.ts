@@ -28,6 +28,19 @@ export interface Chapter {
   verses: string[];
 }
 
+/**
+ * Títulos de seção editoriais (fonte: NTLH, extraídos do site da SBB via
+ * bibliajfa.com.br). Estrutura: { "<abbrev>": { "<capitulo 1-based>":
+ * [{ v: n, title: "..." }] } } — cada item marca o versículo onde a seção
+ * começa. Vazio quando a tradução não expõe títulos.
+ */
+export interface SectionTitle {
+  v: number;
+  title: string;
+}
+export type SectionTitlesByChapter = Record<string, SectionTitle[]>;
+export type SectionTitlesIndex = Record<string, SectionTitlesByChapter>;
+
 const DB_NAME = "biblia-sagrada";
 const DB_VERSION = 4;
 const CHAPTERS_STORE = "chapters";
@@ -119,6 +132,37 @@ export async function getIndex(): Promise<BibleIndex> {
   }
   indexCache = (await res.json()) as BibleIndex;
   return indexCache;
+}
+
+let titlesCache: SectionTitlesIndex | null = null;
+
+/**
+ * Carrega os títulos de seção (public/data/titles.json) com cache em memória.
+ * Arquivo pequeno e estático — entra no precache do Service Worker, então é
+ * rápido no primeiro acesso e instantâneo offline.
+ */
+export async function getSectionTitles(): Promise<SectionTitlesIndex> {
+  if (typeof window === "undefined") {
+    throw new Error("getSectionTitles só está disponível no cliente");
+  }
+  if (titlesCache) return titlesCache;
+  try {
+    const res = await fetch("/data/titles.json");
+    if (!res.ok) return {};
+    titlesCache = (await res.json()) as SectionTitlesIndex;
+  } catch {
+    titlesCache = {};
+  }
+  return titlesCache;
+}
+
+/** Títulos de seção de um capítulo específico (ou [] se não houver). */
+export async function getChapterSectionTitles(
+  bookAbbrev: string,
+  chapterOneBased: number,
+): Promise<SectionTitle[]> {
+  const all = await getSectionTitles();
+  return all[bookAbbrev]?.[String(chapterOneBased)] ?? [];
 }
 
 async function readMeta(db: IDBDatabase, key: string): Promise<string | null> {

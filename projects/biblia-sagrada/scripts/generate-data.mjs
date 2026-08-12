@@ -113,6 +113,22 @@ async function main() {
     console.log(`${version.code}: 66 livros, ${metaByCode[version.code].totalVerses} versículos, capítulos=${JSON.stringify(chapters.slice(0, 3))}...`);
   }
 
+  // Títulos de seção (NTLH, extraídos do site oficial da SBB via bibliajfa).
+  // Formato: { "<abbrev>": { "<capitulo>": [{ "v": n, "title": "..." }] } }
+  // Usado pelo leitor como subtítulos editoriais acima dos versículos.
+  const titlesRawPath = path.join(RAW_DIR, "ntlh-titles.json");
+  try {
+    const titlesRaw = JSON.parse(await fs.readFile(titlesRawPath, "utf8"));
+    await fs.writeFile(path.join(OUT_DIR, "titles.json"), JSON.stringify(titlesRaw), "utf8");
+    const totalTitles = Object.values(titlesRaw).reduce(
+      (a, chapters) => a + Object.values(chapters).reduce((x, list) => x + list.length, 0),
+      0,
+    );
+    console.log(`titles.json gerado (${Object.keys(titlesRaw).length} livros, ${totalTitles} títulos de seção)`);
+  } catch (err) {
+    console.warn(`Aviso: sem data/raw/ntlh-titles.json (${err.message}) — leitor sem títulos de seção.`);
+  }
+
   const indexBody = {
     versions: Object.values(metaByCode),
     books: booksCanonical,

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Menu, Sun, Moon, ChevronLeft, ChevronRight, Pencil, Check, Circle } from "lucide-react";
-import { getChapter, getDownloadedVersions, getIndex, getReadChapterKeys, getStudyRecords, readChapterKey, toggleChapterRead, type BibleIndex, type Chapter, type StudyRecord } from "@/lib/bible";
+import { getChapter, getChapterSectionTitles, getDownloadedVersions, getIndex, getReadChapterKeys, getStudyRecords, readChapterKey, toggleChapterRead, type BibleIndex, type Chapter, type SectionTitle, type StudyRecord } from "@/lib/bible";
 import {
   applyTheme,
   readFontScale,
@@ -76,6 +76,7 @@ export default function Reader() {
   const [verseActionsOpen, setVerseActionsOpen] = useState(false);
   const [verseActionsVerse, setVerseActionsVerse] = useState<{ book: number; chapter: number; verse: number } | null>(null);
   const [readKeys, setReadKeys] = useState<Set<string>>(new Set());
+  const [sectionTitles, setSectionTitles] = useState<SectionTitle[]>([]);
 
   // Carrega o registro de traduções baixadas (IDB meta) no mount.
   useEffect(() => {
@@ -147,6 +148,10 @@ export default function Reader() {
         getStudyRecords(version, result.book.id, result.chapter)
           .then(setStudyRecords)
           .catch(() => setStudyRecords([]));
+        // Títulos de seção editoriais (NTLH) para este capítulo.
+        getChapterSectionTitles(result.book.abbrev, result.chapter + 1)
+          .then(setSectionTitles)
+          .catch(() => setSectionTitles([]));
       })
       .catch(() => {
         if (!cancelled) setStatus("error");
@@ -316,6 +321,7 @@ export default function Reader() {
             chapter={chapter}
             fontScale={fontScale}
             studyRecords={studyRecords}
+            sectionTitles={sectionTitles}
             isRead={readKeys.has(readChapterKey(chapter.book.id, chapter.chapter))}
             onToggleRead={handleToggleRead}
             onVerseClick={handleVerseClick}
@@ -471,6 +477,7 @@ function ChapterView({
   chapter,
   fontScale,
   studyRecords,
+  sectionTitles,
   isRead,
   onToggleRead,
   onVerseClick,
@@ -478,15 +485,22 @@ function ChapterView({
   chapter: Chapter;
   fontScale: number;
   studyRecords: StudyRecord[];
+  sectionTitles: SectionTitle[];
   isRead: boolean;
   onToggleRead: () => void;
   onVerseClick: (book: number, chapter: number, verse: number) => void;
 }) {
+  // Título de seção que abre o capítulo (ex.: Is 61 → "A salvação de Israel").
+  const openingTitle = sectionTitles.find((t) => t.v === 1)?.title;
+  // Demais títulos, posicionados no versículo onde cada seção começa.
+  const inlineTitles = sectionTitles.filter((t) => t.v !== 1);
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-6 sm:px-8">
-      <h1 className="mb-6 font-serif text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-        {chapter.book.name} {chapter.chapter + 1}
-      </h1>
+      {openingTitle && (
+        <h1 className="mb-6 font-serif text-xl font-semibold tracking-tight text-accent sm:text-2xl">
+          {openingTitle}
+        </h1>
+      )}
       <div
         className="space-y-4 font-serif leading-[1.75] text-ink"
         style={{ fontSize: `${(fontScale * 1.125).toFixed(2)}rem` }}
@@ -495,32 +509,39 @@ function ChapterView({
           const record = studyRecords.find((r) => r.ref.verse === i);
           const hasAnnotation = record?.text;
           const marked = Boolean(record?.color);
+          const sectionTitle = inlineTitles.find((t) => t.v === i + 1);
           return (
-            <button
-              key={i}
-              type="button"
-              onClick={() => onVerseClick(chapter.book.id, chapter.chapter, i)}
-              className="block w-full rounded-lg border-b border-line px-2 py-2 text-left transition-colors last:border-b-0 hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
-              style={record?.color ? { backgroundColor: record.color, color: "var(--color-mark-ink)" } : undefined}
-              aria-label={`Versículo ${i + 1} (${chapter.book.abbrev} ${chapter.chapter + 1}:${i + 1})`}
-            >
-              <span className="text-pretty">
-                <sup
-                  className={`mr-2 select-none text-[0.6em] font-semibold ${marked ? "text-[inherit]" : "text-accent"}`}
-                >
-                  {i + 1}
-                </sup>
-                {verse}
-                {hasAnnotation && (
-                  <span
-                    className={`ml-1 inline-flex text-xs ${marked ? "text-[inherit]" : "text-accent"}`}
-                    aria-label="Tem anotação"
+            <div key={i} className="border-b border-line last:border-b-0">
+              {sectionTitle && (
+                <p className="mb-2 mt-4 font-serif text-sm font-semibold tracking-wide text-accent first:mt-0 sm:text-base">
+                  {sectionTitle.title}
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={() => onVerseClick(chapter.book.id, chapter.chapter, i)}
+                className="block w-full rounded-lg px-2 py-2 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
+                style={record?.color ? { backgroundColor: record.color, color: "var(--color-mark-ink)" } : undefined}
+                aria-label={`Versículo ${i + 1} (${chapter.book.abbrev} ${chapter.chapter + 1}:${i + 1})`}
+              >
+                <span className="text-pretty">
+                  <sup
+                    className={`mr-2 select-none text-[0.6em] font-semibold ${marked ? "text-[inherit]" : "text-accent"}`}
                   >
-                    <Pencil size={12} />
-                  </span>
-                )}
-              </span>
-            </button>
+                    {i + 1}
+                  </sup>
+                  {verse}
+                  {hasAnnotation && (
+                    <span
+                      className={`ml-1 inline-flex text-xs ${marked ? "text-[inherit]" : "text-accent"}`}
+                      aria-label="Tem anotação"
+                    >
+                      <Pencil size={12} />
+                    </span>
+                  )}
+                </span>
+              </button>
+            </div>
           );
         })}
       </div>

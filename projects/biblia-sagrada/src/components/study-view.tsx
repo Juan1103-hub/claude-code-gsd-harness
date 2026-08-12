@@ -1,11 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, Check, ExternalLink, CloudOff, Cloud } from "lucide-react";
+import { ChevronDown, ChevronRight, Check, ExternalLink, CloudOff, Cloud, Type } from "lucide-react";
 import type { BibleIndex, PlanProgress } from "@/lib/bible";
 import { getAllStudyRecords, getPlanProgress, setPlanProgress } from "@/lib/bible";
 import { getDictionary, getThemes, getHymns, getPlans, type DictionaryEntry, type Theme, type Hymn, type Plan } from "@/lib/study";
 import { normalizeTerm } from "@/lib/search-options";
+import {
+  readFontScale,
+  writeFontScale,
+  FONT_SCALE_MAX,
+  FONT_SCALE_MIN,
+  FONT_SCALE_STEP,
+} from "@/lib/settings";
 import { flushOutbox, hasSync, syncPull } from "@/lib/sync";
 
 interface StudyViewProps {
@@ -30,6 +37,7 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "synced" | "offline">("idle");
+  const [fontScale, setFontScale] = useState(() => readFontScale());
 
   useEffect(() => {
     Promise.all([getDictionary(), getThemes(), getHymns(), getAllStudyRecords(), getPlans()])
@@ -118,8 +126,42 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
     );
   }
 
+  const bumpFont = useCallback((delta: number) => {
+    setFontScale((prev) => {
+      const next = Math.round(Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, prev + delta)) * 10) / 10;
+      writeFontScale(next);
+      return next;
+    });
+  }, []);
+
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-6 sm:px-8">
+    <div
+      className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-6 sm:px-8"
+      style={{ fontSize: `${fontScale}rem` }}
+    >
+      <div className="mb-2 flex items-center justify-end gap-2">
+        <span className="mr-auto inline-flex items-center gap-1 text-xs text-ink-faint">
+          <Type size={14} /> Tamanho do texto
+        </span>
+        <button
+          type="button"
+          onClick={() => bumpFont(-FONT_SCALE_STEP)}
+          aria-label={`Diminuir fonte (${fontScale.toFixed(1).replace(".", ",")})`}
+          title={`Diminuir fonte (${fontScale.toFixed(1).replace(".", ",")})`}
+          className="flex h-11 min-w-11 items-center justify-center rounded-full text-sm text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+        >
+          A−
+        </button>
+        <button
+          type="button"
+          onClick={() => bumpFont(FONT_SCALE_STEP)}
+          aria-label={`Aumentar fonte (${fontScale.toFixed(1).replace(".", ",")})`}
+          title={`Aumentar fonte (${fontScale.toFixed(1).replace(".", ",")})`}
+          className="flex h-11 min-w-11 items-center justify-center rounded-full text-sm text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+        >
+          A+
+        </button>
+      </div>
       <div className="mb-2 flex justify-end">
         {!hasSync() && (
           <span className="inline-flex items-center gap-1 text-xs text-ink-faint">
@@ -137,7 +179,7 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
           </span>
         )}
       </div>
-      <div className="mb-4 flex gap-2 overflow-x-auto border-b border-line">
+      <div className="mb-4 flex gap-2 overflow-x-auto border-b border-line" style={{ fontSize: "1rem" }}>
         <TabButton
           label="Dicionário"
           active={tab === "dicionario"}
@@ -186,10 +228,10 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                 key={entry.word}
                 className="rounded-xl border border-line bg-paper p-4"
               >
-                <p className="mb-1 text-base font-semibold text-accent">
+                <p className="mb-1 text-[1em] font-semibold text-accent">
                   {entry.word}
                 </p>
-                <p className="font-serif text-sm leading-relaxed text-ink">
+                <p className="font-serif text-[0.875em] leading-relaxed text-ink">
                   {entry.definition}
                 </p>
               </li>
@@ -214,7 +256,7 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                 }
                 className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
               >
-                <span className="text-base font-semibold text-ink">
+                <span className="text-[1em] font-semibold text-ink">
                   {theme.title}
                 </span>
                 <span className="text-sm text-ink-soft">
@@ -236,10 +278,10 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                           onClick={() => onNavigate(verse.book, verse.chapter)}
                           className="w-full rounded-lg p-2 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
                         >
-                          <p className="mb-1 text-xs font-semibold text-accent">
+                          <p className="mb-1 text-[0.75em] font-semibold text-accent">
                             {book?.abbrev} {verse.chapter + 1}:{verse.verse + 1}
                           </p>
-                          <p className="font-serif text-sm leading-relaxed text-ink">
+                          <p className="font-serif text-[0.875em] leading-relaxed text-ink">
                             {verse.text}
                           </p>
                         </button>
@@ -264,7 +306,7 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                 }
                 className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
               >
-                <span className="text-base font-semibold text-ink">
+                <span className="text-[1em] font-semibold text-ink">
                   {hymn.title}
                 </span>
                 <span className="text-sm text-ink-soft">
@@ -278,7 +320,7 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
               {expandedHymn === hymn.id && (
                 <div className="border-t border-line px-4 py-3">
                   {hymn.verses.map((verse, i) => (
-                    <p key={i} className="mb-2 font-serif text-sm leading-relaxed text-ink">
+                    <p key={i} className="mb-2 font-serif text-[0.875em] leading-relaxed text-ink">
                       {verse}
                     </p>
                   ))}
@@ -306,10 +348,10 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                   className="w-full rounded-xl border border-line bg-paper p-4 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
                   style={note.color ? { borderLeftWidth: "4px", borderLeftColor: note.color } : undefined}
                 >
-                  <p className="mb-1 text-xs font-semibold text-accent">
+                  <p className="mb-1 text-[0.75em] font-semibold text-accent">
                     {book?.abbrev} {note.ref.chapter + 1}:{note.ref.verse + 1}
                   </p>
-                  <p className="font-serif text-sm leading-relaxed text-ink">
+                  <p className="font-serif text-[0.875em] leading-relaxed text-ink">
                     {note.text}
                   </p>
                 </button>
@@ -335,7 +377,7 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                   className="flex w-full flex-col items-start gap-2 px-4 py-3 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
                 >
                   <div className="flex w-full items-center justify-between">
-                    <span className="text-base font-semibold text-ink">
+                    <span className="text-[1em] font-semibold text-ink">
                       {plan.title}
                     </span>
                     <span className="text-sm text-ink-soft">
@@ -346,7 +388,7 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
                       )}
                     </span>
                   </div>
-                  <p className="text-xs text-ink-soft">{plan.description}</p>
+                  <p className="text-[0.75em] text-ink-soft">{plan.description}</p>
                   <div className="w-full">
                     <div className="mb-1 flex justify-between text-xs text-ink-faint">
                       <span>{completedDays.length}/{plan.totalDays} dias</span>
@@ -439,8 +481,8 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
       {tab === "rota66" && (
         <div className="space-y-4">
           <div className="rounded-xl border border-line bg-paper p-5">
-            <h2 className="mb-2 font-serif text-xl font-semibold text-ink">Rota 66</h2>
-            <p className="mb-4 font-serif text-sm leading-relaxed text-ink">
+            <h2 className="mb-2 font-serif text-[1.25em] font-semibold text-ink">Rota 66</h2>
+            <p className="mb-4 font-serif text-[0.875em] leading-relaxed text-ink">
               Comentário bíblico em áudio produzido pela Rádio Trans Mundial, com o teólogo
               Luiz Sayão — um panorama dos 66 livros da Bíblia. O conteúdo é gratuito e fica
               disponível nos canais oficiais da RTM.

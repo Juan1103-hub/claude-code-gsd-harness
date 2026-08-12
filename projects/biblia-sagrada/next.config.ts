@@ -65,6 +65,7 @@ function collectPublicFiles(): { url: string; revision: string }[] {
 }
 
 const nextConfig: NextConfig = {
+  turbopack: {},
   outputFileTracingRoot: __dirname,
   async headers() {
     return [
