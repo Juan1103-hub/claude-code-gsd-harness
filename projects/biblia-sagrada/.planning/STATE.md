@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: Phase 3 P01 executing - sync Supabase + Rota 66
-last_updated: "2026-08-12T10:00:00.000Z"
+stopped_at: Phase 3 P01 implemented - awaiting dashboard infra (anon auth + tables)
+last_updated: "2026-08-12T11:00:00.000Z"
 progress:
   total_phases: 3
   completed_phases: 2
@@ -26,8 +26,9 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 
 - Fase 2 (Estudo e Personalização) COMPLETA: 3/3 plans, UAT 10/10 pass (2026-08-11)
 - NTLH (© SBB) adicionada como 4ª tradução baixável (12/08/2026, decisão do usuário)
-- Fase 3 (Multimídia e Sincronização) em execução: P01 = sync Supabase (auth anônimo + outbox LWW) + aba Rota 66
+- Fase 3 (Multimídia e Sincronização) em execução: P01 = sync Supabase (auth anônimo + outbox LWW) + aba Rota 66 — CÓDIGO PRONTO
 - Escopo Fase 3 aprovado: Rota 66 (link RTM) + sync Supabase; áudio abortado; vídeos não selecionados
+- ⏳ Infra pendente (dashboard Supabase): auth anônimo habilitar + rodar migration 0001_sync_tables.sql. Verificar com `node scripts/check-sync.mjs`
 - Projeto inicializado: PROJECT.md, config.json, REQUIREMENTS.md, ROADMAP.md criados
 - Decisão registrada: traduções de domínio público (Almeida 1911, Tradução Brasileira) no MVP; ACF/ARC NÃO são domínio público (© SBTB/SBB) — fora do escopo
 - Stack decidida: Next.js + TypeScript + Tailwind (PWA) + IndexedDB + Supabase (sync opcional)
@@ -53,9 +54,9 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 
 ## Next Action
 
-- Fase 3 P01 em execução: código pronto (sync + Rota 66).
-- **Pendente usuário:** executar `supabase/migrations/0001_sync_tables.sql` no SQL Editor do dashboard (criar tabelas + RLS).
-- Após migration: validar sync E2E e seguir para próximos plans da Fase 3.
+- Fase 3 P01 código pronto (sync + Rota 66) e commitado.
+- **Pendente usuário (dashboard Supabase):** (1) habilitar Anonymous Sign-Ins; (2) rodar `supabase/migrations/0001_sync_tables.sql` no SQL Editor. Verificar com `node scripts/check-sync.mjs`.
+- Após infra pronta: validar sync E2E (criar marcador → conferir no Supabase → puxar) + UAT Fase 3.
 
 ## Decisions
 

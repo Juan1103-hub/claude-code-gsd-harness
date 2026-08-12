@@ -68,23 +68,20 @@ Plans:
 
 ### Phase 3: Multimídia e Sincronização
 
-**Goal**: Áudio devocional (streaming+offline), Rota 66, vídeos e sync opcional Supabase
+**Goal**: Sincronização opcional Supabase e Rota 66 (escopo aprovado 12/08/2026 — áudio abortado, vídeos não selecionados)
 **Depends on**: Phase 2
-**Requirements**: EST-01, EST-02, EST-03, MUL-01, OFF-03, SYN-01
+**Requirements**: EST-03, SYN-01
 **Success Criteria** (what must be TRUE):
 
-  1. Usuário ouve devocional em streaming e baixa para ouvir offline
-  2. Usuário acessa comentário "Rota 66" em áudio
-  3. Usuário assiste estudo em vídeo embarcado/linkado
-  4. Usuário sincroniza marcadores/anotações/progresso via conta opcional
-  5. Áudio baixado funciona sem internet
+  1. Marcador/anotação/progresso sincroniza com Supabase via auth anônimo (local-first, outbox, LWW)
+  2. App funciona 100% sem Supabase configurado (graceful degradation)
+  3. Usuário acessa a seção "Rota 66" com link para o podcast oficial da RTM
 
-**Plans**: 2 plans
+**Plans**: 1 plan
 
 Plans:
 
-- [ ] 03-01: Player de áudio streaming + download offline
-- [ ] 03-02: Vídeos + sync Supabase
+- [x] 03-01: Sync Supabase (outbox LWW) + Rota 66 (código pronto; infra dashboard pendente)
 
 ## Progress
 
@@ -95,4 +92,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Fundação do Leitor | 1/1 | Complete    | 2026-08-11 |
 | 2. Estudo e Personalização | 3/3 | Complete   | 2026-08-11 |
-| 3. Multimídia e Sincronização | 0/2 | Not started | - |
+| 3. Multimídia e Sincronização | 1/1 | In Progress | - (código pronto; aguardando infra dashboard) |
