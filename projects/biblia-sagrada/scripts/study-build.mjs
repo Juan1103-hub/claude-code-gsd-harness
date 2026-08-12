@@ -178,14 +178,23 @@ async function main() {
   // Dictionary
   const dictPath = path.join(RAW_DIR, "dictionary.json");
   if (await fs.stat(dictPath).catch(() => null)) {
-    const dictionary = JSON.parse(await fs.readFile(dictPath, "utf8"));
+    let dictionary = JSON.parse(await fs.readFile(dictPath, "utf8"));
     validateDictionary(dictionary);
+    // Deduplica por palavra (case-insensitive): verbetes duplicados quebravam
+    // a key do React na aba Dicionário (Êxodo, Gentios, etc. apareciam 2x).
+    const seen = new Set();
+    dictionary = dictionary.filter((entry) => {
+      const key = entry.word.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     await fs.writeFile(
       path.join(OUT_DIR, "dictionary.json"),
       JSON.stringify(dictionary),
       "utf8",
     );
-    console.log(`dictionary.json: ${dictionary.length} verbetes`);
+    console.log(`dictionary.json: ${dictionary.length} verbetes (deduplicados)`);
   } else {
     console.warn("skip dictionary.json (arquivo raw ausente)");
   }

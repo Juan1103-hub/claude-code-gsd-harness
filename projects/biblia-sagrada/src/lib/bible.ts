@@ -29,12 +29,13 @@ export interface Chapter {
 }
 
 const DB_NAME = "biblia-sagrada";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const CHAPTERS_STORE = "chapters";
 const META_STORE = "meta";
 const STUDY_STORE = "study";
 const PLANS_STORE = "plans";
 const SEARCH_STORE = "search";
+const SYNC_OUTBOX_STORE = "sync_outbox";
 const DATA_VERSION_KEY = "dataVersion";
 const DOWNLOADED_KEY = "downloadedVersions";
 
@@ -55,7 +56,7 @@ function runExclusive(task: () => Promise<void>): Promise<void> {
 /** Deduplica a carga em andamento de um mesmo livro (fetch único por livro). */
 const inFlightLoads = new Map<string, Promise<void>>();
 
-function openDb(): Promise<IDBDatabase> {
+export function openDb(): Promise<IDBDatabase> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("IndexedDB não está disponível no servidor"));
   }
@@ -80,6 +81,10 @@ function openDb(): Promise<IDBDatabase> {
         if (!db.objectStoreNames.contains(SEARCH_STORE)) {
           db.createObjectStore(SEARCH_STORE, { keyPath: "versionCode" });
         }
+        // IDB v3 (plano 03): store do outbox de sincronização (D-15).
+        if (!db.objectStoreNames.contains(SYNC_OUTBOX_STORE)) {
+          db.createObjectStore(SYNC_OUTBOX_STORE, { keyPath: "seq" });
+        }
       };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => {
@@ -94,6 +99,9 @@ function openDb(): Promise<IDBDatabase> {
   }
   return dbPromise;
 }
+
+/** Store do outbox de sincronização (D-15) — usado por src/lib/sync.ts. */
+export const SYNC_OUTBOX_STORE_NAME = SYNC_OUTBOX_STORE;
 
 export async function getIndex(): Promise<BibleIndex> {
   if (typeof window === "undefined") {
@@ -369,23 +377,36 @@ export async function getAllStudyRecords(): Promise<StudyRecord[]> {
 /** Cria ou atualiza um registro de estudo (upsert). */
 export async function putStudyRecord(record: StudyRecord): Promise<void> {
   const db = await openDb();
-  return new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(STUDY_STORE, "readwrite");
     tx.objectStore(STUDY_STORE).put(record);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
+  // D-15: enfileira no outbox de sincronização (fire-and-forget; import dinâmico evita ciclo).
+  try {
+    const { enqueueSync } = await import("./sync");
+    enqueueSync({ kind: "upsert_study", id: record.id, payload: record });
+  } catch {
+    /* sync indisponível — local-first continua */
+  }
 }
 
 /** Remove um registro de estudo por id. */
 export async function deleteStudyRecord(id: string): Promise<void> {
   const db = await openDb();
-  return new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(STUDY_STORE, "readwrite");
     tx.objectStore(STUDY_STORE).delete(id);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
+  try {
+    const { enqueueSync } = await import("./sync");
+    enqueueSync({ kind: "delete_study", id });
+  } catch {
+    /* sync indisponível — local-first continua */
+  }
 }
 
 /** Retorna o progresso de um plano de leitura. */
@@ -402,10 +423,17 @@ export async function getPlanProgress(planId: string): Promise<PlanProgress | nu
 /** Define o progresso de um plano de leitura (dias concluídos). */
 export async function setPlanProgress(planId: string, completedDays: number[]): Promise<void> {
   const db = await openDb();
-  return new Promise((resolve, reject) => {
+  const updatedAt = Date.now();
+  await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(PLANS_STORE, "readwrite");
-    tx.objectStore(PLANS_STORE).put({ planId, completedDays, updatedAt: Date.now() });
+    tx.objectStore(PLANS_STORE).put({ planId, completedDays, updatedAt });
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
+  try {
+    const { enqueueSync } = await import("./sync");
+    enqueueSync({ kind: "upsert_plan", id: planId, payload: { planId, completedDays, updatedAt } });
+  } catch {
+    /* sync indisponível — local-first continua */
+  }
 }

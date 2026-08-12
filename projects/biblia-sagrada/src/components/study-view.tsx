@@ -1,18 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, Check } from "lucide-react";
+import { ChevronDown, ChevronRight, Check, ExternalLink, CloudOff, Cloud } from "lucide-react";
 import type { BibleIndex, PlanProgress } from "@/lib/bible";
 import { getAllStudyRecords, getPlanProgress, setPlanProgress } from "@/lib/bible";
 import { getDictionary, getThemes, getHymns, getPlans, type DictionaryEntry, type Theme, type Hymn, type Plan } from "@/lib/study";
 import { normalizeTerm } from "@/lib/search-options";
+import { syncPull } from "@/lib/sync";
 
 interface StudyViewProps {
   index: BibleIndex;
   onNavigate: (bookId: number, chapter: number) => void;
 }
 
-type Tab = "dicionario" | "temas" | "hinos" | "notas" | "planos";
+type Tab = "dicionario" | "temas" | "hinos" | "notas" | "planos" | "rota66";
 
 export default function StudyView({ index, onNavigate }: StudyViewProps) {
   const [tab, setTab] = useState<Tab>("dicionario");
@@ -28,6 +29,7 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
   const [expandedPlan, setExpandedPlan] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "synced" | "offline">("idle");
 
   useEffect(() => {
     Promise.all([getDictionary(), getThemes(), getHymns(), getAllStudyRecords(), getPlans()])
@@ -51,6 +53,24 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
         setError(err instanceof Error ? err.message : "Erro ao carregar conteúdo");
         setLoading(false);
       });
+  }, []);
+
+  // Sync Supabase (D-14): puxa dados do usuário no mount e atualiza o status.
+  useEffect(() => {
+    if (typeof navigator === "undefined") return;
+    const runSync = () => {
+      setSyncStatus("syncing");
+      syncPull()
+        .catch(() => {})
+        .then(() => setSyncStatus(navigator.onLine ? "synced" : "offline"));
+    };
+    runSync();
+    window.addEventListener("online", runSync);
+    window.addEventListener("offline", () => setSyncStatus("offline"));
+    return () => {
+      window.removeEventListener("online", runSync);
+      window.removeEventListener("offline", () => setSyncStatus("offline"));
+    };
   }, []);
 
   const filteredDictionary = useCallback(() => {
@@ -86,6 +106,18 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-6 sm:px-8">
+      <div className="mb-2 flex justify-end">
+        {syncStatus === "synced" && (
+          <span className="inline-flex items-center gap-1 text-xs text-ink-faint">
+            <Cloud size={14} /> sincronizado
+          </span>
+        )}
+        {syncStatus === "offline" && (
+          <span className="inline-flex items-center gap-1 text-xs text-ink-faint">
+            <CloudOff size={14} /> offline — alterações ficam salvas neste aparelho
+          </span>
+        )}
+      </div>
       <div className="mb-4 flex gap-2 overflow-x-auto border-b border-line">
         <TabButton
           label="Dicionário"
@@ -111,6 +143,11 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
           label="Planos"
           active={tab === "planos"}
           onClick={() => setTab("planos")}
+        />
+        <TabButton
+          label="Rota 66"
+          active={tab === "rota66"}
+          onClick={() => setTab("rota66")}
         />
       </div>
 
@@ -378,6 +415,38 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
             );
           })}
         </ul>
+      )}
+
+      {tab === "rota66" && (
+        <div className="space-y-4">
+          <div className="rounded-xl border border-line bg-paper p-5">
+            <h2 className="mb-2 font-serif text-xl font-semibold text-ink">Rota 66</h2>
+            <p className="mb-4 font-serif text-sm leading-relaxed text-ink">
+              Comentário bíblico em áudio produzido pela Rádio Trans Mundial, com o teólogo
+              Luiz Sayão — um panorama dos 66 livros da Bíblia. O conteúdo é gratuito e fica
+              disponível nos canais oficiais da RTM.
+            </p>
+            <a
+              href="https://www.rtmbrasil.org.br/radio/programas/rota-66"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-accent px-6 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-accent"
+            >
+              Ouvir no site da RTM <ExternalLink size={16} />
+            </a>
+            <a
+              href="https://omny.fm/shows/rota-66"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 flex min-h-12 items-center justify-center gap-2 rounded-full border border-line bg-paper px-6 text-sm font-medium text-ink transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
+            >
+              Ouvir no podcast (Omny) <ExternalLink size={16} />
+            </a>
+          </div>
+          <p className="text-center text-xs text-ink-faint">
+            Conteúdo © Rádio Trans Mundial. Este app apenas direciona para os canais oficiais.
+          </p>
+        </div>
       )}
     </div>
   );

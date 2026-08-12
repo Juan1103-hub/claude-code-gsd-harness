@@ -1,5 +1,11 @@
 # Decisões de Projeto - Bíblia Sagrada
 
+## 2026-08-12 - Fase 3: Sync Supabase + Rota 66 (D-14 a D-18)
+- **Decisão**: Sincronização opcional via Supabase (SYN-01) com auth anônimo e padrão local-first: IDB é a fonte de verdade, outbox (`sync_outbox`, IDB v3) enfileira escritas e faz flush quando online, merge LWW por `updatedAt`. Rota 66 (EST-03) como link externo para o podcast oficial da RTM (conteúdo © RTM, sem redistribuição).
+- **Justificativa**: Usuário aprovou escopo (Rota 66 + sync; áudio abortado; vídeos não selecionados). Free tier Supabase cobre bem (500MB/50k MAU).
+- **Implementação**: `src/lib/supabase.ts` + `src/lib/sync.ts` + hooks nas escritas de `bible.ts`; migration `supabase/migrations/0001_sync_tables.sql` (tabelas + RLS auth.uid()) para executar no SQL Editor; aba Rota 66 no StudyView. Chaves em `.env.local` (gitignored); service_role nunca no bundle.
+- **Status**: Implementado. Pendente: execução da migration no dashboard (DDL não é possível via REST/anon).
+
 ## 2026-08-12 - NTLH adicionada como tradução baixável (decisão do usuário, ALERTA DE LICENÇA)
 - **Decisão**: Adicionar **Nova Tradução na Linguagem de Hoje (NTLH)** como 4ª tradução, baixável sob demanda (padrão BLIVRE: embarcada no build, FORA do precache, baixa para IndexedDB). Fonte: SQLite extraído do APK `biblia-sagrada-ntlh-1-7-11` (Flutter) via `scripts/extract-ntlh.mjs` → `data/raw/NTLH.json` (66 livros, 30.307 versículos) → pipeline `generate-data.mjs` + `search-build.mjs`.
 - **⚠️ ALERTA DE LICENÇA**: A NTLH é **© Sociedade Bíblica do Brasil (SBB) — direitos reservados** (metadata do próprio SQLite: `copyright: 'Nova Tradução na Linguagem de Hoje - 1988', permissions: 'SBB'`). Isto é uma decisão explícita do usuário (produto), registrada aqui para ciência do risco legal ao publicar/distribuir o app. Fora do precache para não inflar o bundle; acesso condicionado ao download manual (sem redistribuição automática).
