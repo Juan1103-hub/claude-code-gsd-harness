@@ -1,5 +1,5 @@
 ---
-status: in_progress
+status: mostly_pass
 phase: 03-multim-dia-e-sincroniza-o
 started: "2026-08-12"
 ---
@@ -21,11 +21,11 @@ started: "2026-08-12"
 
 ### 3. Sincronização de anotação (push)
 **expected:** Criar anotação → conferir que `text` aparece na linha study_records correspondente
-**result:** pending (depende da infra)
+**result:** pass (E2E 2026-08-12: anotação 'UAT-ANOTACAO-SYNC-2026' em Gn 1:2 presente no banco via Management API)
 
 ### 4. Sincronização de progresso de plano (push)
 **expected:** Marcar dia concluído no plano → conferir `plan_progress` com completed_days atualizado
-**result:** pending (depende da infra)
+**result:** pass (E2E 2026-08-12: plano 'bib1ano' com completed_days [1] no banco via Management API)
 
 ### 5. Pull (outro dispositivo / merge LWW)
 **expected:** Com a conta anônima ativa, alterar um registro diretamente no Supabase com updated_at mais recente → reabrir aba Estudo → dado puxado e aplicado localmente (LWW remoto vence); alteração local mais recente → sobe para o remoto
@@ -42,10 +42,11 @@ started: "2026-08-12"
 ## Summary
 
 - total: 7
-- passed: 4 (Rota 66, marcador push, offline→reconexão, graceful degradation)
-- pending: 3 (anotação push, plano push, pull/merge LWW)
+- passed: 6 (Rota 66, marcador push, anotação push, plano push, offline→reconexão, graceful degradation)
+- pending: 1 (pull/merge LWW multi-dispositivo — requer 2 aparelhos, mesmo user anônimo)
 
 ## Gaps
 
-- Anotação, progresso de plano e merge LWW multi-dispositivo ainda não exercitados (precisam de interação de UI dedicada + conta no celular).
+- **Pull/merge LWW multi-dispositivo:** o teste real exige a mesma conta anônima em 2 aparelhos (o storage anônimo não migra sozinho entre dispositivos — isso depende de uma futura feature de login com email/OAuth). Validação indireta: pull já roda no mount e o flush drenou ops antigas; o merge LWW foi exercitado no código (l.updatedAt > r.updatedAt → push).
 - Nota: a prova de RLS por auth.uid() foi confirmada (anon sem sessão JWT recebe `[]`; owner vê os dados).
+- **Limitação arquitetural (registrada):** auth anônimo é por dispositivo — dados NÃO seguem o usuário entre aparelhos sem login permanente. Para o multi-dispositivo real, é necessário login com email (usuário permanente) no app.

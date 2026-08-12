@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: Phase 3 P01 complete - infra + sync E2E validated
-last_updated: "2026-08-12T13:30:00.000Z"
+stopped_at: Phase 3 complete (UAT 6/7) - deciding next phase
+last_updated: "2026-08-12T13:40:00.000Z"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
   completed_plans: 3
 current_phase_name: Multimídia e Sincronização
@@ -20,13 +20,13 @@ current_phase_name: Multimídia e Sincronização
 See: .planning/PROJECT.md (updated 2026-08-11)
 
 **Core value:** Carregamento de texto ultra-rápido e leitura confortável, 100% offline, app leve (~45MB)
-**Current focus:** Phase 2 — Estudo e Personalização (pronta para planejar)
+**Current focus:** Phase 3 complete — next phase pending decision
 
 ## Current State
 
 - Fase 2 (Estudo e Personalização) COMPLETA: 3/3 plans, UAT 10/10 pass (2026-08-11)
 - NTLH (© SBB) adicionada como 4ª tradução baixável (12/08/2026, decisão do usuário)
-- Fase 3 (Multimídia e Sincronização): P01 = sync Supabase (auth anônimo + outbox LWW) + aba Rota 66 — **INFRA + E2E CONCLUÍDOS** (12/08/2026)
+- Fase 3 (Multimídia e Sincronização) COMPLETA (12/08/2026): sync Supabase (auth anônimo + outbox LWW) + aba Rota 66 — UAT 6/7 (todos os pushes validados no banco: marcador, anotação, plano, offline→reconexão)
 - Escopo Fase 3 aprovado: Rota 66 (link RTM) + sync Supabase; áudio abortado; vídeos não selecionados
 - ✅ Infra completa via Management API (PAT): auth anônimo habilitado, migrations 0001/0002/0003 executadas, policies RLS ativas (incl. news_feed), trigger on_auth_user_created corrigido para pular anônimos
 - ✅ Sync E2E validado: marcador criado no navegador → presente no Supabase (study_records); outbox acumulou ops antigas sem infra e drenou após habilitação
@@ -56,9 +56,8 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 
 ## Next Action
 
-- Fase 3 P01 (sync + Rota 66) COMPLETA: código + infra + E2E validado (12/08/2026).
-- Pendente: UAT formal da Fase 3 (checklist em `.planning/phases/03/03-UAT.md`); UI do `news_feed` ainda não consome a tabela (policies prontas no banco).
-- Próximo plano sugerido: Fase 3 P02 = aba Notícias (news_feed) usando o RLS já ativo.
+- Fase 3 COMPLETA (UAT 6/7; pendente real: merge LWW multi-dispositivo, que exige login permanente/email — ver Gaps no 03-UAT.md).
+- Candidatos de próxima fase/plano: (a) Fase 3 P02 = aba Notícias (news_feed — tabela/policies prontas no banco, UI não consome ainda); (b) login com email/OAuth para usuário permanente (destrava multi-dispositivo + postar no news_feed); (c) Deploy na Vercel.
 
 ## Decisions
 

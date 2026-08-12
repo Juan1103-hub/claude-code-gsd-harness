@@ -8,7 +8,7 @@ Do zero a um app de Bíblia offline-first competitivo. Fase 1 entrega a fundaç�
 
 - [x] **Phase 1: Fundação do Leitor** - Projeto Next.js PWA, dados Almeida 1911 + Tradução Brasileira em IndexedDB, leitor de capítulos instantâneo, tema dia/noturno, fonte ajustável (completed 2026-08-11)
 - [ ] **Phase 2: Estudo e Personalização** - Troca de traduções, busca FTS, dicionário, planos de leitura, "O que a Bíblia diz", marcadores, anotações, hinários
-- [ ] **Phase 3: Multimídia e Sincronização** - Áudio streaming+offline (devocionais, Rota 66), vídeos, sync Supabase
+- [x] **Phase 3: Multimídia e Sincronização** - Sync Supabase (local-first, outbox LWW), Rota 66 (completed 2026-08-12 — áudio abortado, vídeos não selecionados)
 
 ## Phase Details
 
@@ -81,7 +81,7 @@ Plans:
 
 Plans:
 
-- [x] 03-01: Sync Supabase (outbox LWW) + Rota 66 (código pronto; infra dashboard pendente)
+- [x] 03-01: Sync Supabase (outbox LWW) + Rota 66 (infra provisionada via Management API + sync E2E validado 2026-08-12)
 
 ## Progress
 
@@ -92,4 +92,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Fundação do Leitor | 1/1 | Complete    | 2026-08-11 |
 | 2. Estudo e Personalização | 3/3 | Complete   | 2026-08-11 |
-| 3. Multimídia e Sincronização | 1/1 | In Progress | - (código pronto; aguardando infra dashboard) |
+| 3. Multimídia e Sincronização | 1/1 | Complete   | 2026-08-12 (UAT 6/7; LWW multi-dispositivo = pendente real, requer login permanente) |
