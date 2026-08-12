@@ -194,7 +194,7 @@ export default function BookPicker({ open, index, current, readKeys, onSelect, o
                       isCurrent
                         ? "bg-accent text-white"
                         : isRead
-                          ? "bg-paper-muted text-ink ring-1 ring-inset ring-accent/50"
+                          ? "bg-paper-muted text-ink ring-1 ring-inset ring-accent/50 hover:bg-line/40"
                           : "bg-paper-muted text-ink hover:bg-line/40"
                     }`}
                   >

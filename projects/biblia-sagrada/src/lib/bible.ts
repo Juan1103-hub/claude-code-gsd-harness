@@ -454,14 +454,6 @@ export async function setPlanProgress(planId: string, completedDays: number[]): 
   }
 }
 
-/** Registro de capítulo lido. Chave no formato `${bookId}:${chapter}` (sem tradução). */
-export interface ReadChapter {
-  id: string;
-  bookId: number;
-  chapter: number;
-  updatedAt: number;
-}
-
 /** Formata a chave de capítulo lido (ex.: "42:2" = João 3). */
 export function readChapterKey(bookId: number, chapter: number): string {
   return `${bookId}:${chapter}`;
@@ -481,6 +473,7 @@ export async function getReadChapterKeys(): Promise<string[]> {
 /**
  * Marca/desmarca um capítulo como lido (toggle). Retorna o novo estado
  * (true = lido). Local-first: não depende de rede nem de tradução.
+ * Resolve apenas quando a transação comita (falhas de escrita rejeitam).
  */
 export async function toggleChapterRead(bookId: number, chapter: number): Promise<boolean> {
   const db = await openDb();
@@ -488,16 +481,19 @@ export async function toggleChapterRead(bookId: number, chapter: number): Promis
   return new Promise((resolve, reject) => {
     const tx = db.transaction(READ_STORE, "readwrite");
     const store = tx.objectStore(READ_STORE);
+    let newState = false;
     const getReq = store.get(id);
     getReq.onsuccess = () => {
       if (getReq.result) {
         store.delete(id);
-        resolve(false);
+        newState = false;
       } else {
-        store.put({ id, bookId, chapter, updatedAt: Date.now() } satisfies ReadChapter);
-        resolve(true);
+        store.put({ id });
+        newState = true;
       }
     };
     getReq.onerror = () => reject(getReq.error);
+    tx.oncomplete = () => resolve(newState);
+    tx.onerror = () => reject(tx.error);
   });
 }

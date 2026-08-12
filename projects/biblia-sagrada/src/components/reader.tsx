@@ -245,7 +245,7 @@ export default function Reader() {
 
   const handleToggleRead = useCallback(async () => {
     if (!chapter) return;
-    const nowRead = await toggleChapterRead(chapter.book.id, chapter.chapter);
+    const nowRead = await toggleChapterRead(chapter.book.id, chapter.chapter).catch(() => false);
     setReadKeys((prev) => {
       const next = new Set(prev);
       const key = readChapterKey(chapter.book.id, chapter.chapter);
