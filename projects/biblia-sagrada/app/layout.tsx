@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { SerwistProvider } from "@serwist/next/react";
+import SwVersionGuard from "@/components/sw-version-guard";
 import { Geist, Geist_Mono, Lora } from "next/font/google";
 import "./globals.css";
 
@@ -89,7 +90,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-full flex flex-col">
         <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <SerwistProvider swUrl="/sw.js">{children}</SerwistProvider>
+        <SerwistProvider swUrl="/sw.js">
+          <SwVersionGuard>{children}</SwVersionGuard>
+        </SerwistProvider>
       </body>
     </html>
   );

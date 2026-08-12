@@ -107,7 +107,8 @@ export default function Reader() {
           setVersion(v);
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[Bíblia] Erro ao carregar índice:", err);
         if (!cancelled) setStatus("error");
       });
     return () => {
@@ -156,7 +157,8 @@ export default function Reader() {
           .then(setSectionTitles)
           .catch(() => setSectionTitles([]));
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("[Bíblia] Erro ao carregar capítulo:", err);
         if (!cancelled) setStatus("error");
       });
     return () => {

@@ -1,0 +1,8 @@
+- generic [ref=f2e2]:
+  - main [ref=f2e5]:
+    - status [ref=f2e6]: Carregando…
+  - navigation "Navegação principal" [ref=f2e7]:
+    - generic [ref=f2e8]:
+      - button "Leitura" [ref=f2e9]
+      - button "Busca" [ref=f2e14]
+      - button "Estudo" [active] [ref=f2e20]
