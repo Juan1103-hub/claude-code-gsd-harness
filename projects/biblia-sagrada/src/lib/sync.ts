@@ -1,5 +1,5 @@
 import { openDb, SYNC_OUTBOX_STORE_NAME, type PlanProgress, type StudyRecord } from "./bible";
-import { ensureAnonSession, getSupabase } from "./supabase";
+import { ensureAnonSession, getSupabase, isSyncEnabled } from "./supabase";
 
 /**
  * Sincronização local-first (D-14/D-15/D-16).
@@ -7,8 +7,8 @@ import { ensureAnonSession, getSupabase } from "./supabase";
  * - IndexedDB é a fonte de verdade local; o Supabase é uma réplica remota.
  * - Toda escrita local enfileira uma operação no store `sync_outbox` (IDB v3,
  *   criado em bible.ts); quando online, `flushOutbox()` envia para o Supabase
- *   (upsert/delete) e limpa a fila.
- * - `pullAll()` baixa os dados do usuário e faz merge LWW por updatedAt.
+ *   (upsert/delete) e remove da fila apenas o que foi processado.
+ * - `syncPull()` baixa os dados do usuário e faz merge LWW por updatedAt.
  * - Sem rede/sem .env.local → tudo permanece local, nada quebra.
  */
 
@@ -20,6 +20,14 @@ export type OutboxOp =
 interface OutboxRow {
   seq: number;
   op: OutboxOp;
+}
+
+/** Contador monotônico em módulo — evita colisão de seq (crítico para o outbox). */
+let seqCounter = 0;
+function nextSeq(): number {
+  seqCounter += 1;
+  // ms + contador em módulo: único enquanto o processo não reiniciar no mesmo ms.
+  return Date.now() * 1000 + (seqCounter % 1000);
 }
 
 /** Registra a operação no outbox local (fire-and-forget, nunca bloqueia a UI). */
@@ -34,10 +42,18 @@ export function enqueueSync(op: OutboxOp): void {
           resolve();
           void flushOutbox();
         };
-        tx.onerror = () => resolve();
+        tx.onerror = (ev) => {
+          console.warn("[sync] falha ao enfileirar operação:", ev);
+          resolve();
+        };
       });
     })
     .catch(() => {});
+}
+
+/** Indica se o sync está configurado (env vars presentes). */
+export function hasSync(): boolean {
+  return isSyncEnabled();
 }
 
 /** Puxa os dados do usuário e faz merge LWW com o local. Chamado no boot/mount. */
@@ -72,12 +88,16 @@ export async function syncPull(): Promise<void> {
   }
 }
 
-/** Envia todas as operações pendentes do outbox para o Supabase. */
-export async function flushOutbox(): Promise<void> {
+/**
+ * Envia as operações pendentes do outbox para o Supabase e remove da fila
+ * APENAS as processadas (deleta por seq — sem race com escritas novas).
+ * Retorna true se tudo foi enviado.
+ */
+export async function flushOutbox(): Promise<boolean> {
   const supabase = getSupabase();
-  if (!supabase) return;
+  if (!supabase) return false;
   const ok = await ensureAnonSession();
-  if (!ok) return;
+  if (!ok) return false;
 
   const db = await openDb();
   let rows: OutboxRow[] = [];
@@ -91,7 +111,7 @@ export async function flushOutbox(): Promise<void> {
     req.onerror = () => resolve();
   });
 
-  if (rows.length === 0) return;
+  if (rows.length === 0) return true;
 
   // Agrupa por id — mantém a ÚLTIMA operação de cada chave (a mais recente vence).
   const latest = new Map<string, OutboxOp>();
@@ -99,8 +119,12 @@ export async function flushOutbox(): Promise<void> {
     latest.set(row.op.id, row.op);
   }
 
+  const processedSeqs: number[] = [];
   let failed = false;
-  for (const op of latest.values()) {
+  for (const row of rows) {
+    const op = latest.get(row.op.id);
+    // Só processa se esta linha é a última versão da operação (dedupe).
+    if (op !== row.op) continue;
     try {
       if (op.kind === "upsert_study") {
         await upsertStudyRecord(supabase, op.payload);
@@ -115,6 +139,7 @@ export async function flushOutbox(): Promise<void> {
         });
         if (error) throw error;
       }
+      processedSeqs.push(row.seq);
     } catch (err) {
       failed = true;
       console.warn("[sync] flush falhou em", op.kind, op.id, ":", err);
@@ -122,14 +147,16 @@ export async function flushOutbox(): Promise<void> {
     }
   }
 
-  if (!failed) {
+  if (processedSeqs.length > 0) {
     await new Promise<void>((resolve) => {
       const tx = db.transaction(SYNC_OUTBOX_STORE_NAME, "readwrite");
-      tx.objectStore(SYNC_OUTBOX_STORE_NAME).clear();
+      const store = tx.objectStore(SYNC_OUTBOX_STORE_NAME);
+      for (const seq of processedSeqs) store.delete(seq);
       tx.oncomplete = () => resolve();
       tx.onerror = () => resolve();
     });
   }
+  return !failed;
 }
 
 async function upsertStudyRecord(supabase: NonNullable<ReturnType<typeof getSupabase>>, rec: StudyRecord): Promise<void> {
@@ -232,9 +259,25 @@ async function mergePlanProgress(
       }
     }
   }
-}
 
-/** Gera um seq monotônico aproximado para o outbox (chave única). */
-function nextSeq(): number {
-  return Math.floor(Date.now() / 1000) * 1000 + Math.floor(Math.random() * 1000);
+  // Simetria com study records: planos locais que não existem no remoto sobem.
+  const { getAllPlanProgress } = await import("./bible");
+  const remoteIds = new Set(remote.map((r) => r.plan_id));
+  const allLocal = await getAllPlanProgress();
+  for (const local of allLocal) {
+    if (remoteIds.has(local.planId)) continue;
+    const supabase = getSupabase();
+    if (supabase) {
+      try {
+        const { error } = await supabase.from("plan_progress").upsert({
+          plan_id: local.planId,
+          completed_days: local.completedDays,
+          updated_at: new Date(local.updatedAt).toISOString(),
+        });
+        if (error) enqueueSync({ kind: "upsert_plan", id: local.planId, payload: local });
+      } catch {
+        enqueueSync({ kind: "upsert_plan", id: local.planId, payload: local });
+      }
+    }
+  }
 }

@@ -420,6 +420,17 @@ export async function getPlanProgress(planId: string): Promise<PlanProgress | nu
   });
 }
 
+/** Retorna o progresso de todos os planos (usado no merge de sync). */
+export async function getAllPlanProgress(): Promise<PlanProgress[]> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(PLANS_STORE, "readonly");
+    const request = tx.objectStore(PLANS_STORE).getAll();
+    request.onsuccess = () => resolve((request.result as PlanProgress[]) || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
 /** Define o progresso de um plano de leitura (dias concluídos). */
 export async function setPlanProgress(planId: string, completedDays: number[]): Promise<void> {
   const db = await openDb();

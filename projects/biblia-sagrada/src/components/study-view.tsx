@@ -6,7 +6,7 @@ import type { BibleIndex, PlanProgress } from "@/lib/bible";
 import { getAllStudyRecords, getPlanProgress, setPlanProgress } from "@/lib/bible";
 import { getDictionary, getThemes, getHymns, getPlans, type DictionaryEntry, type Theme, type Hymn, type Plan } from "@/lib/study";
 import { normalizeTerm } from "@/lib/search-options";
-import { syncPull } from "@/lib/sync";
+import { flushOutbox, hasSync, syncPull } from "@/lib/sync";
 
 interface StudyViewProps {
   index: BibleIndex;
@@ -55,13 +55,27 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
       });
   }, []);
 
-  // Sync Supabase (D-14): puxa dados do usuário no mount e atualiza o status.
+  // Sync Supabase (D-14): flush pendências + pull com merge LWW no mount e ao
+  // reconectar. Após o pull, re-busca os dados locais para refletir na UI.
   useEffect(() => {
-    if (typeof navigator === "undefined") return;
+    if (typeof navigator === "undefined" || !hasSync()) return;
+    const refreshLocal = () =>
+      Promise.all([getAllStudyRecords(), getPlanProgress("bib1ano"), getPlanProgress("nt90")])
+        .then(([allRecords, p1, p2]) => {
+          setNotes(allRecords.filter((r: import("@/lib/bible").StudyRecord) => r.text));
+          const map = new Map<string, PlanProgress>();
+          if (p1) map.set(p1.planId, p1);
+          if (p2) map.set(p2.planId, p2);
+          setPlanProgressState(map);
+        })
+        .catch(() => {});
     const runSync = () => {
       setSyncStatus("syncing");
-      syncPull()
+      flushOutbox()
         .catch(() => {})
+        .then(() => syncPull())
+        .catch(() => {})
+        .then(() => refreshLocal())
         .then(() => setSyncStatus(navigator.onLine ? "synced" : "offline"));
     };
     runSync();
@@ -107,12 +121,17 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-6 sm:px-8">
       <div className="mb-2 flex justify-end">
-        {syncStatus === "synced" && (
+        {!hasSync() && (
+          <span className="inline-flex items-center gap-1 text-xs text-ink-faint">
+            <CloudOff size={14} /> dados salvos apenas neste aparelho
+          </span>
+        )}
+        {hasSync() && syncStatus === "synced" && (
           <span className="inline-flex items-center gap-1 text-xs text-ink-faint">
             <Cloud size={14} /> sincronizado
           </span>
         )}
-        {syncStatus === "offline" && (
+        {hasSync() && syncStatus === "offline" && (
           <span className="inline-flex items-center gap-1 text-xs text-ink-faint">
             <CloudOff size={14} /> offline — alterações ficam salvas neste aparelho
           </span>
