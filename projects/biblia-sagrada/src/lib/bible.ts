@@ -4,6 +4,8 @@ export interface BibleVersionMeta {
   shortLabel: string;
   books: number;
   totalVerses: number;
+  /** Tradução embarcada no build mas fora do precache (baixa sob demanda para o IDB). */
+  downloadable?: boolean;
 }
 
 export interface BibleBook {

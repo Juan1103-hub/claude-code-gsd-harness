@@ -1,5 +1,11 @@
 # Decisões de Projeto - Bíblia Sagrada
 
+## 2026-08-12 - NTLH adicionada como tradução baixável (decisão do usuário, ALERTA DE LICENÇA)
+- **Decisão**: Adicionar **Nova Tradução na Linguagem de Hoje (NTLH)** como 4ª tradução, baixável sob demanda (padrão BLIVRE: embarcada no build, FORA do precache, baixa para IndexedDB). Fonte: SQLite extraído do APK `biblia-sagrada-ntlh-1-7-11` (Flutter) via `scripts/extract-ntlh.mjs` → `data/raw/NTLH.json` (66 livros, 30.307 versículos) → pipeline `generate-data.mjs` + `search-build.mjs`.
+- **⚠️ ALERTA DE LICENÇA**: A NTLH é **© Sociedade Bíblica do Brasil (SBB) — direitos reservados** (metadata do próprio SQLite: `copyright: 'Nova Tradução na Linguagem de Hoje - 1988', permissions: 'SBB'`). Isto é uma decisão explícita do usuário (produto), registrada aqui para ciência do risco legal ao publicar/distribuir o app. Fora do precache para não inflar o bundle; acesso condicionado ao download manual (sem redistribuição automática).
+- **Justificativa**: Usuário pediu explicitamente o uso da NTLH (baixou o APK e solicitou a integração); foco na entrega técnica solicitada.
+- **Status**: Implementado. `SUPPORTED_VERSIONS` + `BibleVersionMeta.downloadable` generalizam o fluxo antes hardcoded de BLIVRE.
+
 ## 2026-08-10 - TASK 01-02: Pipeline de dados e cache offline (implementado)
 - **Decisão**: Dados brutos (JSON domínio público) ficam em `data/raw/` (gitignored); `scripts/generate-data.mjs` gera formato compacto em `public/data/` (index.json + 1 arquivo JSON por livro/tradução, versículos `.trim()`). `dataVersion` = hash MD5 do conteúdo (estável entre gerações idênticas). Precache completo de `/data/` no Service Worker (2 Bíblias ~5MB) via `additionalPrecacheEntries` com URLs normalizadas `\ → /` (fix Windows). Cache runtime em IndexedDB (store `chapters` keyPath `[version, book, chapter]`), invalidação por `dataVersion`, carga sob demanda com fetch único por livro, mutex na transição de versão e dedup de cargas concorrentes. `prebuild` garante dados antes de `next build`.
 - **Justificativa**: Precache integral é barato no orçamento de ~45MB e garante offline-first imediato; IndexedDB evita re-fetch a cada leitura e permite invalidar por versão de build.

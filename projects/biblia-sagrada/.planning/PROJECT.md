@@ -26,7 +26,7 @@ Aplicativo de Bíblia Sagrada gratuito, multiplataforma e 100% offline-first, co
 
 ### Active
 
-- [ ] **LEI-02**: Usuário pode trocar entre traduções disponíveis (domínio público: ALM1911, TB, BLIVRE) instantaneamente
+- [ ] **LEI-02**: Usuário pode trocar entre traduções disponíveis (ALM1911, TB, BLIVRE, NTLH) instantaneamente
 - [ ] **LEI-04**: Usuário pode buscar texto nas traduções baixadas
 - [ ] **EST-01**: Usuário pode ouvir devocionais em áudio (streaming)
 - [ ] **EST-02**: Usuário pode baixar áudios para ouvir offline
@@ -44,7 +44,7 @@ Aplicativo de Bíblia Sagrada gratuito, multiplataforma e 100% offline-first, co
 
 ### Out of Scope
 
-- Traduções pagas/com direitos autorais (NVI, NAA, KJA, NTLH) até licença ser obtida — risco legal
+- Traduções pagas/com direitos autorais (NVI, NAA, KJA) até licença ser obtida — risco legal (exceção: NTLH integrada a pedido do usuário — ver docs/DECISIONS.md, 2026-08-12)
 - ACF (Almeida Corrigida Fiel) — © SBTB 1994/1995/2007/2011; Bíblia completa exige autorização escrita
 - ARC (Almeida Revista e Corrigida) — © SBB 1995/2009; todos os direitos reservados
 - Login obrigatório — app usável sem conta
@@ -57,6 +57,8 @@ Aplicativo de Bíblia Sagrada gratuito, multiplataforma e 100% offline-first, co
 - Armazenamento offline: IndexedDB (com lib leve) para textos, cache do Service Worker para assets; FTS no navegador para busca
 - Usuário é vibe coder: não define specs formais, decisões técnicas delegadas ao agente
 - Phase 1 (11/08/2026): dados ALM1911+TB em JSON embarcado `public/data/**` via `collectPublicFiles()`; FTS/IndexedDB search a definir na Phase 2
+- Phase 2 (11/08/2026): busca FTS, dicionário, temas, marcadores, anotações, hinários, planos — completa
+- NTLH (© SBB) adicionada 12/08/2026 como 4ª tradução baixável (extraída do APK fornecido pelo usuário; ver DECISIONS.md)
 - Domínio público confirmado: Almeida 1911 (†), Tradução Brasileira (†), Bíblia Livre (†). ACF é © SBTB, ARC é © SBB — não utilizáveis sem licença
 - Concorrente: app Mobidic como referência de feature set
 
@@ -75,7 +77,7 @@ Aplicativo de Bíblia Sagrada gratuito, multiplataforma e 100% offline-first, co
 |----------|-----------|---------|
 | PWA Next.js + IndexedDB (em vez de Flutter) | Usuário não pode instalar Flutter/Android SDK (sem espaço); web abre no PC e no celular | Decided (2026-08-10) |
 | Traduções de domínio público (ALM1911 + TB) no MVP | ACF/ARC são © SBTB/SBB — risco legal; domínio público publicável grátis | Decided (2026-08-10) |
-| Textos baixados sob demanda (IndexedDB) | App leve (~45MB), controle de armazenamento, atualização sem novo build | — Pending |
+| Textos baixados sob demanda (IndexedDB) | App leve (~45MB), controle de armazenamento, atualização sem novo build | Decided (2026-08-12) — BLIVRE + NTLH fora do precache, baixam p/ IDB |
 | Busca FTS no navegador | Busca instantânea em milhões de versículos | — Pending |
 | PWA instalável + offline (Service Worker) | Funciona offline no celular sem loja de apps | Decided (2026-08-11) — Serwist + `collectPublicFiles()` precacheia `/data/**` |
 | Bundle zero áudio | Mantém leve; áudio baixável por demanda | — Pending |

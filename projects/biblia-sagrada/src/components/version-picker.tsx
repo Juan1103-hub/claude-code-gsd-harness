@@ -68,7 +68,7 @@ export default function VersionPicker({
           {versions.map((version) => {
             const isCurrent = version.code === current;
             const isDownloaded = downloaded.includes(version.code);
-            const isBlivre = version.code === "blivre";
+            const isDownloadable = version.downloadable === true;
             return (
               <div
                 key={version.code}
@@ -107,12 +107,12 @@ export default function VersionPicker({
                       Baixada
                     </span>
                   )}
-                  {!isCurrent && isBlivre && !isDownloaded && (
+                  {!isCurrent && isDownloadable && !isDownloaded && (
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onManageDownload("blivre");
+                        onManageDownload(version.code);
                       }}
                       className="rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-accent"
                     >
