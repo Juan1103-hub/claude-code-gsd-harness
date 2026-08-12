@@ -500,7 +500,7 @@ function ChapterView({
               key={i}
               type="button"
               onClick={() => onVerseClick(chapter.book.id, chapter.chapter, i)}
-              className="block w-full rounded-lg px-2 py-1 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
+              className="block w-full rounded-lg border-b border-line px-2 py-2 text-left transition-colors last:border-b-0 hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
               style={record?.color ? { backgroundColor: record.color, color: "var(--color-mark-ink)" } : undefined}
               aria-label={`Versículo ${i + 1} (${chapter.book.abbrev} ${chapter.chapter + 1}:${i + 1})`}
             >

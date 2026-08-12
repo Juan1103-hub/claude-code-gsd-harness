@@ -50,3 +50,6 @@ public/swe-worker*
 # dados brutos de traduções (regeneráveis; não versionar 12MB)
 /data/raw/
 .tmp-dev*.log
+
+.vercel
+.env*
