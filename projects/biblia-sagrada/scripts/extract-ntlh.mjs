@@ -1,3 +1,18 @@
+/**
+ * Extrai a tradução NTLH de um APK fornecido pelo usuário para data/raw/NTLH.json
+ * (formato do pipeline: array de 66 livros com { abbrev, name, chapters }).
+ *
+ * Uso:
+ *   node scripts/extract-ntlh.mjs <caminho-do-APK> [caminho-do-sqlite-extraido]
+ *
+ * O script descompacta internamente `assets/flutter_assets/assets/NTLH.sqlite`
+ * do APK (é um ZIP) — não requer passo manual de unzip. Se o segundo argumento
+ * for informado, usa o SQLite já extraído em vez de abrir o APK.
+ *
+ * Obs.: `data/raw/` é gitignored (convenção do projeto) — o `prebuild` de
+ * `npm run build` exige que este arquivo exista localmente para regenerar
+ * `public/data/ntlh/**`. Em um clone novo, rode este script antes do build.
+ */
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -7,9 +22,44 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const RAW_DIR = path.join(PROJECT_ROOT, "data", "raw");
-const DB_PATH = process.env.NTLH_DB_PATH ?? path.join(os.tmpdir(), "ntlh_extract", "NTLH.sqlite");
+const APK_ASSET = "assets/flutter_assets/assets/NTLH.sqlite";
 
-const db = new DatabaseSync(DB_PATH);
+async function resolveDbPath() {
+  const [apkArg, dbArg] = process.argv.slice(2);
+  if (dbArg) return dbArg;
+  if (apkArg) {
+    const apk = path.resolve(apkArg);
+    try {
+      await fs.access(apk);
+    } catch {
+      throw new Error(`APK não encontrado: ${apk}`);
+    }
+    const outDir = await fs.mkdtemp(path.join(os.tmpdir(), "ntlh-"));
+    // APK é um ZIP: extrai apenas o SQLite da NTLH.
+    const { spawnSync } = await import("node:child_process");
+    const res = spawnSync("unzip", ["-o", "-j", apk, APK_ASSET, "-d", outDir], { encoding: "utf8" });
+    if (res.status !== 0) {
+      throw new Error(
+        `Falha ao extrair ${APK_ASSET} do APK (unzip status ${res.status}). ` +
+          `Confirme que o arquivo é o APK 'biblia-sagrada-ntlh' e que 'unzip' está no PATH.`,
+      );
+    }
+    const extracted = path.join(outDir, path.basename(APK_ASSET));
+    try {
+      await fs.access(extracted);
+    } catch {
+      throw new Error(`'${APK_ASSET}' não encontrado dentro do APK — APK inesperado?`);
+    }
+    console.log(`SQLite extraído: ${extracted}`);
+    return extracted;
+  }
+  throw new Error(
+    "Uso: node scripts/extract-ntlh.mjs <caminho-do-APK>  (ou passe o caminho do NTLH.sqlite já extraído)",
+  );
+}
+
+const dbPath = await resolveDbPath();
+const db = new DatabaseSync(dbPath);
 
 // 1) Livros na ordem canônica (id do SQLite é a ordem canônica: 1=Gn ... 66=Ap).
 const books = db.prepare("SELECT id, name, abbr FROM book ORDER BY id").all();
