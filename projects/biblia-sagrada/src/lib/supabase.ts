@@ -15,6 +15,14 @@ const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 let client: SupabaseClient | null = null;
 let sessionPromise: Promise<boolean> | null = null;
 
+/**
+ * Cache de falha do provider anônimo: se o signInAnonymously falhar (ex:
+ * provider desabilitado), não repetimos a chamada por 10 min — evita spam de
+ * rede a cada escrita enquanto o dashboard não for configurado.
+ */
+let anonFailureUntil = 0;
+const ANON_FAILURE_TTL = 10 * 60 * 1000;
+
 export function isSyncEnabled(): boolean {
   return Boolean(URL && ANON_KEY);
 }
@@ -40,6 +48,7 @@ export function getSupabase(): SupabaseClient | null {
  */
 export async function ensureAnonSession(): Promise<boolean> {
   if (!isSyncEnabled()) return false;
+  if (Date.now() < anonFailureUntil) return false;
   if (sessionPromise) return sessionPromise;
   sessionPromise = (async () => {
     try {
@@ -50,11 +59,13 @@ export async function ensureAnonSession(): Promise<boolean> {
       const { error } = await supabase.auth.signInAnonymously();
       if (error) {
         console.warn("[sync] signInAnonymously falhou:", error.message);
+        anonFailureUntil = Date.now() + ANON_FAILURE_TTL;
         return false;
       }
       return true;
     } catch (err) {
       console.warn("[sync] sessão anônima indisponível:", err);
+      anonFailureUntil = Date.now() + ANON_FAILURE_TTL;
       return false;
     }
   })();
