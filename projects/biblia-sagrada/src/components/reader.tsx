@@ -484,25 +484,9 @@ function ChapterView({
 }) {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-6 sm:px-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-serif text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-          {chapter.book.name} {chapter.chapter + 1}
-        </h1>
-        <button
-          type="button"
-          onClick={onToggleRead}
-          aria-pressed={isRead}
-          aria-label={isRead ? "Marcar capítulo como não lido" : "Marcar capítulo como lido"}
-          className={`flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
-            isRead
-              ? "border-accent/50 bg-accent/10 text-accent"
-              : "border-line text-ink-soft hover:bg-paper-muted hover:text-ink"
-          }`}
-        >
-          {isRead ? <Check size={16} /> : <Circle size={16} />}
-          {isRead ? "Lido" : "Marcar como lido"}
-        </button>
-      </div>
+      <h1 className="mb-6 font-serif text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+        {chapter.book.name} {chapter.chapter + 1}
+      </h1>
       <div
         className="space-y-4 font-serif leading-[1.75] text-ink"
         style={{ fontSize: `${(fontScale * 1.125).toFixed(2)}rem` }}
@@ -539,6 +523,23 @@ function ChapterView({
             </button>
           );
         })}
+      </div>
+      <div className="mt-10 border-t border-line pt-8 text-center">
+        <p className="mb-4 font-serif text-base italic text-ink-soft">Fim do capítulo</p>
+        <button
+          type="button"
+          onClick={onToggleRead}
+          aria-pressed={isRead}
+          aria-label={isRead ? "Marcar capítulo como não lido" : "Marcar capítulo como lido"}
+          className={`inline-flex min-h-12 items-center gap-2 rounded-full border px-6 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+            isRead
+              ? "border-accent/50 bg-accent/10 text-accent"
+              : "border-line text-ink-soft hover:bg-paper-muted hover:text-ink"
+          }`}
+        >
+          {isRead ? <Check size={16} /> : <Circle size={16} />}
+          {isRead ? "Lido" : "Marcar como lido"}
+        </button>
       </div>
     </main>
   );
