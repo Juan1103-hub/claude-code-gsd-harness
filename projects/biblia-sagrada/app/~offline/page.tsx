@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export const metadata = {
   title: "Sem conexão",
 };
@@ -13,12 +15,12 @@ export default function OfflinePage() {
         O conteúdo da Bíblia que você já baixou continua disponível. Verifique
         sua conexão para acessar novos conteúdos.
       </p>
-      <a
+      <Link
         href="/"
         className="mt-2 flex h-12 items-center justify-center rounded-full bg-accent px-6 text-sm font-medium text-white transition-opacity hover:opacity-90"
       >
         Voltar à Bíblia
-      </a>
+      </Link>
     </div>
   );
 }

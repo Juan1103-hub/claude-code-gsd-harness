@@ -106,6 +106,14 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
     );
   }, [dictionary, query]);
 
+  const bumpFont = useCallback((delta: number) => {
+    setFontScale((prev) => {
+      const next = Math.round(Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, prev + delta)) * 10) / 10;
+      writeFontScale(next);
+      return next;
+    });
+  }, []);
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center px-6">
@@ -125,14 +133,6 @@ export default function StudyView({ index, onNavigate }: StudyViewProps) {
       </div>
     );
   }
-
-  const bumpFont = useCallback((delta: number) => {
-    setFontScale((prev) => {
-      const next = Math.round(Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, prev + delta)) * 10) / 10;
-      writeFontScale(next);
-      return next;
-    });
-  }, []);
 
   return (
     <div

@@ -81,7 +81,7 @@ export default function BookPicker({ open, index, current, readKeys, onSelect, o
         className="absolute inset-0 cursor-default bg-black/40 backdrop-blur-[2px]"
         onClick={onClose}
       />
-      <div className="absolute inset-x-0 bottom-0 mx-auto flex max-h-[82dvh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border-t border-line bg-paper-raised shadow-2xl">
+      <div className="absolute inset-x-0 bottom-0 mx-auto flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border-t border-line bg-paper-raised shadow-2xl">
         <div className="flex items-center gap-2 border-b border-line px-4 py-3">
           {selectedBookId !== null && (
             <button
@@ -107,8 +107,8 @@ export default function BookPicker({ open, index, current, readKeys, onSelect, o
         </div>
 
         {selectedBookId === null ? (
-          <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2">
-            <div className="px-1 pb-1 pt-2">
+          <div className="flex min-h-0 flex-1 flex-col px-3 py-2">
+            <div className="shrink-0 px-1 pb-1 pt-2">
               <div className="relative">
                 <Search
                   size={18}
@@ -136,10 +136,36 @@ export default function BookPicker({ open, index, current, readKeys, onSelect, o
                 )}
               </div>
             </div>
-            {searchResults === null ? (
-              <>
-                <SectionLabel label="Antigo Testamento" />
-                {oldTestament.map((book) => (
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              {searchResults === null ? (
+                <>
+                  <SectionLabel label="Antigo Testamento" />
+                  {oldTestament.map((book) => (
+                    <BookRow
+                      key={book.id}
+                      name={book.name}
+                      chapters={book.chapters}
+                      isCurrent={book.id === current.bookId}
+                      onSelect={() => pickBook(book.id)}
+                    />
+                  ))}
+                  <SectionLabel label="Novo Testamento" />
+                  {newTestament.map((book) => (
+                    <BookRow
+                      key={book.id}
+                      name={book.name}
+                      chapters={book.chapters}
+                      isCurrent={book.id === current.bookId}
+                      onSelect={() => pickBook(book.id)}
+                    />
+                  ))}
+                </>
+              ) : searchResults.length === 0 ? (
+                <p className="px-4 py-8 text-center text-sm text-ink-soft">
+                  Nenhum livro encontrado para “{query.trim()}”.
+                </p>
+              ) : (
+                searchResults.map((book) => (
                   <BookRow
                     key={book.id}
                     name={book.name}
@@ -147,33 +173,9 @@ export default function BookPicker({ open, index, current, readKeys, onSelect, o
                     isCurrent={book.id === current.bookId}
                     onSelect={() => pickBook(book.id)}
                   />
-                ))}
-                <SectionLabel label="Novo Testamento" />
-                {newTestament.map((book) => (
-                  <BookRow
-                    key={book.id}
-                    name={book.name}
-                    chapters={book.chapters}
-                    isCurrent={book.id === current.bookId}
-                    onSelect={() => pickBook(book.id)}
-                  />
-                ))}
-              </>
-            ) : searchResults.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-ink-soft">
-                Nenhum livro encontrado para “{query.trim()}”.
-              </p>
-            ) : (
-              searchResults.map((book) => (
-                <BookRow
-                  key={book.id}
-                  name={book.name}
-                  chapters={book.chapters}
-                  isCurrent={book.id === current.bookId}
-                  onSelect={() => pickBook(book.id)}
-                />
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
         ) : (
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
