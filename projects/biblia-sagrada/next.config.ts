@@ -28,22 +28,26 @@ function collectPublicFiles(): { url: string; revision: string }[] {
       if (dirent.name.startsWith("sw")) continue;
       const full = path.join(dir, dirent.name);
       const childRel = path.posix.join(rel, dirent.name);
-      // D-03: BLIVRE, NTLH e ACF (public/data/{blivre,ntlh,acf}/** + índices de
-      // busca correspondentes) NÃO entram no precache do Service Worker. O app
-      // baixa por demanda para o IndexedDB; o IDB é a fonte offline. Sem este
-      // filtro, `collectPublicFiles()` embarca ~3,8 MB da BLIVRE + ~4 MB da NTLH
-      // + ~4 MB da ACF + índices → viola o ~45MB (RESEARCH §Pitfall 2).
+      // D-03: BLIVRE, NTLH, ACF e ARC (public/data/{blivre,ntlh,acf,arc}/** +
+      // índices de busca correspondentes) NÃO entram no precache do Service
+      // Worker. O app baixa por demanda para o IndexedDB; o IDB é a fonte
+      // offline. Sem este filtro, `collectPublicFiles()` embarca ~3,8 MB da
+      // BLIVRE + ~4 MB da NTLH + ~4 MB da ACF + ~4 MB da ARC + índices → viola
+      // o ~45MB (RESEARCH §Pitfall 2).
       //
       // childRel é o caminho relativo à raiz de `public/` (ex.: "data/blivre/Gn.json",
       // "data/search/blivre.json"). O walker desce a partir de "" → multiplica por
-      // "data/...", então o prefixo correto é "data/blivre", "data/ntlh" ou "data/acf".
+      // "data/...", então o prefixo correto é "data/blivre", "data/ntlh", "data/acf"
+      // ou "data/arc".
       if (
         childRel.startsWith("data/blivre") ||
         childRel.startsWith("data/search/blivre") ||
         childRel.startsWith("data/ntlh") ||
         childRel.startsWith("data/search/ntlh") ||
         childRel.startsWith("data/acf") ||
-        childRel.startsWith("data/search/acf")
+        childRel.startsWith("data/search/acf") ||
+        childRel.startsWith("data/arc") ||
+        childRel.startsWith("data/search/arc")
       ) {
         continue;
       }

@@ -14,6 +14,7 @@ const VERSIONS = [
   { code: "blivre", label: "Bíblia Livre", shortLabel: "BLIVRE", downloadable: true },
   { code: "ntlh", label: "Nova Tradução na Linguagem de Hoje", shortLabel: "NTLH", downloadable: true },
   { code: "acf", label: "Almeida Corrigida Fiel", shortLabel: "ACF", downloadable: true },
+  { code: "arc", label: "Almeida Revista e Corrigida", shortLabel: "ARC", downloadable: true },
 ];
 
 function chapterCounts(books) {
