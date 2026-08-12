@@ -1,5 +1,11 @@
 # Decisões de Projeto - Bíblia Sagrada
 
+## 2026-08-12 - News feed com RLS (feature do usuário)
+- **Decisão**: Adicionar tabela `news_feed` com RLS: **apenas usuários permanentes postam** (INSERT restritivo: `(auth.jwt()->>'is_anonymous') is false`), **todos os autenticados veem** (SELECT `using (true)`). Migration `supabase/migrations/0002_news_feed.sql`.
+- **Justificativa**: Pedido do usuário (SQL colado do dashboard). Feed é leitura pública entre autenticados; anônimos leem mas não publicam.
+- **⚠️ Nota**: `SELECT using (true)` diverge da regra do harness (deploy.md) mas é intencional aqui — o feed é conteúdo compartilhado, não dado privado por usuário. Restrição real está no INSERT via `is_anonymous`. Anotação no próprio SQL.
+- **Status**: Migration criada; execução no SQL Editor pendente.
+
 ## 2026-08-12 - Fase 3: Sync Supabase + Rota 66 (D-14 a D-18)
 - **Decisão**: Sincronização opcional via Supabase (SYN-01) com auth anônimo e padrão local-first: IDB é a fonte de verdade, outbox (`sync_outbox`, IDB v3) enfileira escritas e faz flush quando online, merge LWW por `updatedAt`. Rota 66 (EST-03) como link externo para o podcast oficial da RTM (conteúdo © RTM, sem redistribuição).
 - **Justificativa**: Usuário aprovou escopo (Rota 66 + sync; áudio abortado; vídeos não selecionados). Free tier Supabase cobre bem (500MB/50k MAU).
