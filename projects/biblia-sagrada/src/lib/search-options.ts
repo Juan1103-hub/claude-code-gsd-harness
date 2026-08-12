@@ -34,6 +34,14 @@ export const SEARCH_OPTIONS: Options<SearchDoc> = {
       "se",
       "os",
       "as",
+      "um",
+      "uma",
+      "que",
+      "para",
+      "dos",
+      "das",
+      "nao",
+      "com",
     ]);
     if (STOP.has(normalized) || normalized.length < 2) return null;
     return normalized;
@@ -67,6 +75,14 @@ export function normalizeTerm(term: string): string {
     "se",
     "os",
     "as",
+    "um",
+    "uma",
+    "que",
+    "para",
+    "dos",
+    "das",
+    "nao",
+    "com",
   ]);
   if (STOP.has(normalized) || normalized.length < 2) return "";
   return normalized;

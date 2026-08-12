@@ -56,10 +56,12 @@ export default function SearchView({
   }, [doSearch]);
 
   const highlightText = (text: string, query: string) => {
-    const normalized = normalizeTerm(query);
-    if (!normalized) return text;
-    const regex = new RegExp(`(${normalized})`, "gi");
-    const match = regex.exec(text);
+    const normalizedQuery = normalizeTerm(query);
+    if (!normalizedQuery) return text;
+    const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(${escapeRegExp(normalizedQuery)})`, "gi");
+    const normalizedText = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const match = regex.exec(normalizedText);
     if (!match) return text;
     const CONTEXT_LEN = 50;
     const start = Math.max(0, match.index - CONTEXT_LEN);
@@ -67,19 +69,24 @@ export default function SearchView({
     const prefix = start > 0 ? "…" : "";
     const suffix = end < text.length ? "…" : "";
     const segment = text.slice(start, end);
-    const parts = segment.split(regex);
+    const normalizedSegment = normalizedText.slice(start, end);
+    const parts = normalizedSegment.split(regex);
+    let offset = 0;
     return (
       <span>
         {prefix}
-        {parts.map((part, i) =>
-          i % 2 === 1 ? (
+        {parts.map((part, i) => {
+          const isMatch = i % 2 === 1;
+          const original = segment.slice(offset, offset + part.length);
+          offset += part.length;
+          return isMatch ? (
             <mark key={i} className="bg-accent/20 text-ink rounded-sm px-0.5">
-              {part}
+              {original}
             </mark>
           ) : (
-            <span key={i}>{part}</span>
-          ),
-        )}
+            <span key={i}>{original}</span>
+          );
+        })}
         {suffix}
       </span>
     );
