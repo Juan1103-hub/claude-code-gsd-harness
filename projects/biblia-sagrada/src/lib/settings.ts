@@ -1,7 +1,7 @@
 export type Theme = "light" | "dark";
 
 export const VERSION_KEY = "bs-version";
-export const SUPPORTED_VERSIONS = ["tb", "alm1911", "blivre", "ntlh"] as const;
+export const SUPPORTED_VERSIONS = ["tb", "alm1911", "blivre", "ntlh", "acf"] as const;
 export type VersionCode = (typeof SUPPORTED_VERSIONS)[number];
 
 const THEME_KEY = "bs-theme";

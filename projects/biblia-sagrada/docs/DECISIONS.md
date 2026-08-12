@@ -1,5 +1,12 @@
 # Decisões de Projeto - Bíblia Sagrada
 
+## 2026-08-12 - ACF adicionada como tradução baixável (decisão do usuário, ALERTA DE LICENÇA)
+- **Decisão**: Adicionar **Almeida Corrigida Fiel (ACF)** como 5ª tradução, baixável sob demanda (padrão BLIVRE/NTLH: embarcada no build, FORA do precache, baixa para IndexedDB). Fonte: `inst/json/ACF.json` do repositório `damarals/biblias` (MIT) — mesmo repo das traduções públicas do projeto — convertido para `data/raw/ACF.json` (66 livros, 31.102 versículos). Abreviação `1Tn` → `1Tm` (padrão canônico do projeto).
+- **⚠️ ALERTA DE LICENÇA**: A ACF é **© Sociedade Bíblica Trinitariana do Brasil (SBTB) — direitos reservados** (revisão 1994/2011). Requisito LEI-07/REQUIREMENTS.md originalmente a marcava como "não utilizar sem autorização escrita". Esta é uma decisão explícita do usuário (produto), registrada aqui para ciência do risco legal ao publicar/distribuir o app — mesmo padrão da NTLH (© SBB). Fora do precache para não inflar o bundle; acesso condicionado ao download manual (sem redistribuição automática).
+- **Justificativa**: Usuário pediu explicitamente a ACF (baixou APK de app concorrente e solicitou a integração); foco na entrega técnica solicitada.
+- **Implementação**: `scripts/fetch-acf.mjs` (reprodutível: baixa + normaliza `1Tn`→`1Tm` + valida) → `data/raw/ACF.json`; `scripts/generate-data.mjs` VERSIONS + validação de abbrev contra canônico (Pitfall 7 — falha ruidosa se fonte divergir); `src/lib/settings.ts` SUPPORTED_VERSIONS; `next.config.ts` precache filter (`data/acf`). UI genérica (version-picker/download-modal) lê metadados de `index.json` — sem mudanças.
+- **Status**: Implementado e validado (lint ✓, tsc ✓, build ✓, precache sem ACF ✓, índice 31.102 docs ✓).
+
 ## 2026-08-12 - News feed com RLS (feature do usuário)
 - **Decisão**: Adicionar tabela `news_feed` com RLS: **apenas usuários permanentes postam** (INSERT restritivo: `(auth.jwt()->>'is_anonymous') is false`), **todos os autenticados veem** (SELECT `using (true)`). Migration `supabase/migrations/0002_news_feed.sql`.
 - **Justificativa**: Pedido do usuário (SQL colado do dashboard). Feed é leitura pública entre autenticados; anônimos leem mas não publicam.

@@ -5,6 +5,7 @@ import { BookOpen, Search, GraduationCap } from "lucide-react";
 import Reader from "@/components/reader";
 import SearchView from "@/components/search-view";
 import StudyView from "@/components/study-view";
+import InstallPrompt from "@/components/install-prompt";
 import { getIndex, type BibleIndex } from "@/lib/bible";
 import { readVersion } from "@/lib/settings";
 
@@ -56,6 +57,8 @@ export default function Home() {
           />
         )}
       </div>
+
+      <InstallPrompt />
 
       <nav
         className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/95 backdrop-blur"

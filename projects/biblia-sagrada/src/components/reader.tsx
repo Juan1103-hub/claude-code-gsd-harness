@@ -524,8 +524,7 @@ function ChapterView({
           );
         })}
       </div>
-      <div className="mt-10 border-t border-line pt-8 text-center">
-        <p className="mb-4 font-serif text-base italic text-ink-soft">Fim do capítulo</p>
+      <div className="mt-6 border-t border-line pt-4 text-center">
         <button
           type="button"
           onClick={onToggleRead}

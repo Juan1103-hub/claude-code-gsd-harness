@@ -13,6 +13,7 @@ const VERSIONS = [
   { code: "alm1911", label: "João Ferreira de Almeida (1911)", shortLabel: "ALM 1911" },
   { code: "blivre", label: "Bíblia Livre", shortLabel: "BLIVRE", downloadable: true },
   { code: "ntlh", label: "Nova Tradução na Linguagem de Hoje", shortLabel: "NTLH", downloadable: true },
+  { code: "acf", label: "Almeida Corrigida Fiel", shortLabel: "ACF", downloadable: true },
 ];
 
 function chapterCounts(books) {
@@ -69,6 +70,12 @@ async function main() {
       baseVerseCounts = verses;
     } else {
       for (let i = 0; i < 66; i++) {
+        // Pitfall 7: abreviação fora do padrão canônico (ex.: ACF usa "1Tn" para
+        // 1 Timóteo) geraria arquivo com nome errado e o search-build pularia o
+        // livro em silêncio → tradução incompleta sem erro. Falha aqui em vez disso.
+        if (raw[i].abbrev !== booksCanonical[i].abbrev) {
+          throw new Error(`${version.code}: livro ${i} abbrev "${raw[i].abbrev}" ≠ canonical "${booksCanonical[i].abbrev}"`);
+        }
         if (chapters[i] !== booksCanonical[i].chapters) {
           throw new Error(`${version.code}: livro ${booksCanonical[i].abbrev} tem ${chapters[i]} capítulos, base espera ${booksCanonical[i].chapters}`);
         }
