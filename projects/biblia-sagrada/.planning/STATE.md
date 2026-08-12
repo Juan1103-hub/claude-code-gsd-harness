@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: Phase 3 P01 implemented - awaiting dashboard infra (anon auth + tables)
-last_updated: "2026-08-12T11:00:00.000Z"
+stopped_at: Phase 3 P01 complete - infra + sync E2E validated
+last_updated: "2026-08-12T13:30:00.000Z"
 progress:
   total_phases: 3
   completed_phases: 2
@@ -26,9 +26,11 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 
 - Fase 2 (Estudo e Personalização) COMPLETA: 3/3 plans, UAT 10/10 pass (2026-08-11)
 - NTLH (© SBB) adicionada como 4ª tradução baixável (12/08/2026, decisão do usuário)
-- Fase 3 (Multimídia e Sincronização) em execução: P01 = sync Supabase (auth anônimo + outbox LWW) + aba Rota 66 — CÓDIGO PRONTO
+- Fase 3 (Multimídia e Sincronização): P01 = sync Supabase (auth anônimo + outbox LWW) + aba Rota 66 — **INFRA + E2E CONCLUÍDOS** (12/08/2026)
 - Escopo Fase 3 aprovado: Rota 66 (link RTM) + sync Supabase; áudio abortado; vídeos não selecionados
-- ⏳ Infra pendente (dashboard Supabase): auth anônimo habilitar + rodar migration 0001_sync_tables.sql. Verificar com `node scripts/check-sync.mjs`
+- ✅ Infra completa via Management API (PAT): auth anônimo habilitado, migrations 0001/0002/0003 executadas, policies RLS ativas (incl. news_feed), trigger on_auth_user_created corrigido para pular anônimos
+- ✅ Sync E2E validado: marcador criado no navegador → presente no Supabase (study_records); outbox acumulou ops antigas sem infra e drenou após habilitação
+- ⚠️ Projeto Supabase compartilhado com outro app (vendas/PDV: users, sales, products...) — RLS por auth.uid() isola os dados; verificar se o projeto dedicado é desejável
 - Projeto inicializado: PROJECT.md, config.json, REQUIREMENTS.md, ROADMAP.md criados
 - Decisão registrada: traduções de domínio público (Almeida 1911, Tradução Brasileira) no MVP; ACF/ARC NÃO são domínio público (© SBTB/SBB) — fora do escopo
 - Stack decidida: Next.js + TypeScript + Tailwind (PWA) + IndexedDB + Supabase (sync opcional)
@@ -54,9 +56,9 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 
 ## Next Action
 
-- Fase 3 P01 código pronto (sync + Rota 66) e commitado.
-- **Pendente usuário (dashboard Supabase):** (1) habilitar Anonymous Sign-Ins; (2) rodar `supabase/migrations/0001_sync_tables.sql` no SQL Editor. Verificar com `node scripts/check-sync.mjs`.
-- Após infra pronta: validar sync E2E (criar marcador → conferir no Supabase → puxar) + UAT Fase 3.
+- Fase 3 P01 (sync + Rota 66) COMPLETA: código + infra + E2E validado (12/08/2026).
+- Pendente: UAT formal da Fase 3 (checklist em `.planning/phases/03/03-UAT.md`); UI do `news_feed` ainda não consome a tabela (policies prontas no banco).
+- Próximo plano sugerido: Fase 3 P02 = aba Notícias (news_feed) usando o RLS já ativo.
 
 ## Decisions
 
@@ -72,6 +74,9 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 | Fase 2 completa com UAT 10/10 (marcadores, anotações, hinários, planos) | Registered (12/08/2026) |
 | NTLH (© SBB) como tradução baixável (decisão do usuário) | Registered (12/08/2026) |
 | Sync Supabase local-first (outbox + LWW) + Rota 66 link externo | Registered (12/08/2026) |
+| Infra Supabase provisionada via Management API (auth anônimo + migrations 0001–0003) | Registered (12/08/2026) |
+| news_feed: só usuários permanentes postam; todos veem (RLS) | Registered (12/08/2026) |
+| Trigger on_auth_user_created ignora anônimos (fix p/ app de vendas coexistir) | Registered (12/08/2026) |
 
 ## Session
 

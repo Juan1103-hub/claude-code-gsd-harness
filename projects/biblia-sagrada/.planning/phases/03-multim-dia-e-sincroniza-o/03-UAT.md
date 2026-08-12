@@ -1,5 +1,5 @@
 ---
-status: pending
+status: in_progress
 phase: 03-multim-dia-e-sincroniza-o
 started: "2026-08-12"
 ---
@@ -17,7 +17,7 @@ started: "2026-08-12"
 
 ### 2. Sincronização de marcador (push)
 **expected:** Marcar versículo com cor → aguardar sync → conferir no Supabase (Table Editor > study_records) que o registro existe com user_id = uid do anônimo e color correto
-**result:** pending (depende da infra)
+**result:** pass (E2E 2026-08-12: marcador amarelo em Gn 1:1 presente no banco via Management API; RLS confirmado — anon sem sessão não vê, dono do banco vê)
 
 ### 3. Sincronização de anotação (push)
 **expected:** Criar anotação → conferir que `text` aparece na linha study_records correspondente
@@ -37,14 +37,15 @@ started: "2026-08-12"
 
 ### 7. Offline → reconexão
 **expected:** Criar marcador offline (outbox acumula) → reconectar → flushOutbox envia pendências → conferir no Supabase
-**result:** pending (depende da infra)
+**result:** pass (E2E 2026-08-12: registro antigo de Jó 4:2 verde, criado quando a infra não existia, drenou do outbox automaticamente após habilitação)
 
 ## Summary
 
 - total: 7
-- passed: 2 (Rota 66 + graceful degradation)
-- pending: 5 (dependem da infra no dashboard)
+- passed: 4 (Rota 66, marcador push, offline→reconexão, graceful degradation)
+- pending: 3 (anotação push, plano push, pull/merge LWW)
 
 ## Gaps
 
-- Infra: auth anônimo + migration não executadas no dashboard Supabase (aguardando usuário).
+- Anotação, progresso de plano e merge LWW multi-dispositivo ainda não exercitados (precisam de interação de UI dedicada + conta no celular).
+- Nota: a prova de RLS por auth.uid() foi confirmada (anon sem sessão JWT recebe `[]`; owner vê os dados).

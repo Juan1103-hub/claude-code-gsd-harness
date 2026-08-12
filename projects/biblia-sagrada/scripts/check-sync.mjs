@@ -56,10 +56,13 @@ async function main() {
     console.log("❌ [1/2] Falha de rede ao testar auth:", e.message);
   }
 
-  // 2) Tabelas
-  for (const table of ["study_records", "plan_progress"]) {
+  // 2) Tabelas (cada uma com uma coluna que existe de fato)
+  for (const [table, col] of [
+    ["study_records", "id"],
+    ["plan_progress", "plan_id"],
+  ]) {
     try {
-      const res = await fetch(`${url}/rest/v1/${table}?select=id&limit=1`, {
+      const res = await fetch(`${url}/rest/v1/${table}?select=${col}&limit=1`, {
         headers: { apikey: anon, Authorization: `Bearer ${anon}` },
       });
       if (res.status === 200) {
