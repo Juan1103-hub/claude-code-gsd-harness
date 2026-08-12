@@ -11,6 +11,8 @@
   --ink-faint: #8d857a;
   --accent: #8a6d3b;
   --line: rgba(33, 29, 23, 0.14);
+  /* Texto sobre marca-texto: os marcadores são pastéis claros (D-16 contraste). */
+  --mark-ink: #211d17;
 }
 
 .dark {
@@ -33,6 +35,7 @@
   --color-ink-faint: var(--ink-faint);
   --color-accent: var(--accent);
   --color-line: var(--line);
+  --color-mark-ink: var(--mark-ink);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-lora), Georgia, "Times New Roman", serif;
 }

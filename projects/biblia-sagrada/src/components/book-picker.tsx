@@ -115,14 +115,15 @@ export default function BookPicker({ open, index, current, onSelect, onClose }: 
                   aria-hidden="true"
                 />
                 <input
-                  type="search"
+                  type="text"
+                  inputMode="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar livro pelo nome…"
                   aria-label="Buscar livro pelo nome"
                   className="h-11 w-full rounded-xl border border-line bg-paper pl-10 pr-10 text-base text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 />
-                {query.length > 0 && (
+                {query.trim().length > 0 && (
                   <button
                     type="button"
                     onClick={() => setQuery("")}
