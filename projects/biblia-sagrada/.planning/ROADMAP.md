@@ -64,7 +64,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 02-03: Marcadores, anotações, hinários, planos de leitura
+- [x] 02-03: Marcadores, anotações, hinários, planos de leitura
 
 ### Phase 3: Multimídia e Sincronização
 
@@ -93,6 +93,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Fundação do Leitor | 1/0 | Complete    | 2026-08-11 |
-| 2. Estudo e Personalização | 3/3 | In Progress|  |
+| 1. Fundação do Leitor | 1/1 | Complete    | 2026-08-11 |
+| 2. Estudo e Personalização | 3/3 | Complete   | 2026-08-11 |
 | 3. Multimídia e Sincronização | 0/2 | Not started | - |

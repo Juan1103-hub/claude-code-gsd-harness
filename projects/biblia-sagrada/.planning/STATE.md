@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in_progress
-stopped_at: Completed 02-03-PLAN.md (phase 2 complete)
-last_updated: "2026-08-11T19:31:51.388Z"
+stopped_at: Phase 2 UAT approved (10/10) - ready for Phase 3 discuss
+last_updated: "2026-08-12T00:00:00.000Z"
 progress:
-  total_phases: 2
-  completed_phases: 1
-  total_plans: 3
+  total_phases: 3
+  completed_phases: 2
+  total_plans: 5
   completed_plans: 3
-current_phase_name: Estudo e Personalização
+current_phase_name: Multimídia e Sincronização
 ---
 
 # STATE: Bíblia Sagrada
@@ -24,6 +24,9 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 
 ## Current State
 
+- Fase 2 (Estudo e Personalização) COMPLETA: 3/3 plans, UAT 10/10 pass (2026-08-11)
+- UI polish aplicado: ícones lucide-react, touch targets, a11y, bottom sheet handle (commit 3082a37)
+- Próximo: Fase 3 (Multimídia e Sincronização) — áudio, vídeos, sync Supabase
 - Projeto inicializado: PROJECT.md, config.json, REQUIREMENTS.md, ROADMAP.md criados
 - Decisão registrada: traduções de domínio público (Almeida 1911, Tradução Brasileira) no MVP; ACF/ARC NÃO são domínio público (© SBTB/SBB) — fora do escopo
 - Stack decidida: Next.js + TypeScript + Tailwind (PWA) + IndexedDB + Supabase (sync opcional)
@@ -49,8 +52,8 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 
 ## Next Action
 
-- Fase 1 completa (implementada, verificada, UAT aprovado). Commit `c5d7e97`.
-- Iniciar Phase 2 (Estudo e Personalização) com `/gsd-discuss-phase 2`
+- Fase 2 completa (implementada, UAT 10/10 aprovado). Commit `3082a37`.
+- Iniciar Phase 3 (Multimídia e Sincronização) com discuss: áudio devocional, Rota 66, vídeos, sync Supabase
 
 ## Decisions
 
@@ -63,11 +66,12 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 | Dados baixados sob demanda (IndexedDB) | Registered |
 | Config único `next.config.ts` com `collectPublicFiles()` para precache de `/data/**` | Registered (11/08/2026) |
 | SW registrado via `SerwistProvider` em `app/layout.tsx` | Registered (11/08/2026) |
+| Fase 2 completa com UAT 10/10 (marcadores, anotações, hinários, planos) | Registered (12/08/2026) |
 
 ## Session
 
-**Last session:** 2026-08-11T19:31:51.358Z
-**Stopped at:** Completed 02-03-PLAN.md (phase 2 complete)
+**Last session:** 2026-08-11T19:58:00.000Z
+**Stopped at:** Phase 2 UAT approved (10/10) — ready for Phase 3 discuss
 **Resume file:** None
 
 ## Performance Metrics
@@ -77,3 +81,4 @@ See: .planning/PROJECT.md (updated 2026-08-11)
 | Phase 02 P01 | 32min | 3 tasks | 10 files |
 | Phase 02 P02 | 18min | 3 tasks | 10 files |
 | Phase 02 P03 | 22min | 3 tasks | 5 files |
+| Phase 02 UAT | 5min | 10 tests | - |
