@@ -29,13 +29,14 @@ export interface Chapter {
 }
 
 const DB_NAME = "biblia-sagrada";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const CHAPTERS_STORE = "chapters";
 const META_STORE = "meta";
 const STUDY_STORE = "study";
 const PLANS_STORE = "plans";
 const SEARCH_STORE = "search";
 const SYNC_OUTBOX_STORE = "sync_outbox";
+const READ_STORE = "read_chapters";
 const DATA_VERSION_KEY = "dataVersion";
 const DOWNLOADED_KEY = "downloadedVersions";
 
@@ -84,6 +85,10 @@ export function openDb(): Promise<IDBDatabase> {
         // IDB v3 (plano 03): store do outbox de sincronização (D-15).
         if (!db.objectStoreNames.contains(SYNC_OUTBOX_STORE)) {
           db.createObjectStore(SYNC_OUTBOX_STORE, { keyPath: "seq" });
+        }
+        // IDB v4: capítulos marcados como lidos (chave "book:chapter", sem tradução).
+        if (!db.objectStoreNames.contains(READ_STORE)) {
+          db.createObjectStore(READ_STORE, { keyPath: "id" });
         }
       };
       request.onsuccess = () => resolve(request.result);
@@ -447,4 +452,52 @@ export async function setPlanProgress(planId: string, completedDays: number[]): 
   } catch {
     /* sync indisponível — local-first continua */
   }
+}
+
+/** Registro de capítulo lido. Chave no formato `${bookId}:${chapter}` (sem tradução). */
+export interface ReadChapter {
+  id: string;
+  bookId: number;
+  chapter: number;
+  updatedAt: number;
+}
+
+/** Formata a chave de capítulo lido (ex.: "42:2" = João 3). */
+export function readChapterKey(bookId: number, chapter: number): string {
+  return `${bookId}:${chapter}`;
+}
+
+/** Retorna todas as chaves de capítulos lidos (ex.: ["0:0", "42:2"]). */
+export async function getReadChapterKeys(): Promise<string[]> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(READ_STORE, "readonly");
+    const request = tx.objectStore(READ_STORE).getAllKeys();
+    request.onsuccess = () => resolve((request.result as string[]) ?? []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Marca/desmarca um capítulo como lido (toggle). Retorna o novo estado
+ * (true = lido). Local-first: não depende de rede nem de tradução.
+ */
+export async function toggleChapterRead(bookId: number, chapter: number): Promise<boolean> {
+  const db = await openDb();
+  const id = readChapterKey(bookId, chapter);
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(READ_STORE, "readwrite");
+    const store = tx.objectStore(READ_STORE);
+    const getReq = store.get(id);
+    getReq.onsuccess = () => {
+      if (getReq.result) {
+        store.delete(id);
+        resolve(false);
+      } else {
+        store.put({ id, bookId, chapter, updatedAt: Date.now() } satisfies ReadChapter);
+        resolve(true);
+      }
+    };
+    getReq.onerror = () => reject(getReq.error);
+  });
 }

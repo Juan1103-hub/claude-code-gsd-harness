@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, Search, X } from "lucide-react";
-import type { BibleIndex } from "@/lib/bible";
+import { Check, ChevronLeft, Search, X } from "lucide-react";
+import { readChapterKey, type BibleIndex } from "@/lib/bible";
 
 /** Normaliza para busca sem diferenciar maiúsculas nem acentos (Gênesis ≈ genesis). */
 function normalizeForSearch(s: string): string {
@@ -16,11 +16,12 @@ interface BookPickerProps {
   open: boolean;
   index: BibleIndex | null;
   current: { bookId: number; chapter: number };
+  readKeys: Set<string>;
   onSelect: (bookId: number, chapter: number) => void;
   onClose: () => void;
 }
 
-export default function BookPicker({ open, index, current, onSelect, onClose }: BookPickerProps) {
+export default function BookPicker({ open, index, current, readKeys, onSelect, onClose }: BookPickerProps) {
   const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [prevOpen, setPrevOpen] = useState(open);
@@ -180,20 +181,28 @@ export default function BookPicker({ open, index, current, onSelect, onClose }: 
               {selectedBook?.name} — escolha o capítulo
             </p>
             <div className="grid grid-cols-5 gap-2">
-              {chapters.map((chapter) => (
-                <button
-                  key={chapter}
-                  type="button"
-                  onClick={() => pickChapter(chapter)}
-                  className={`flex h-12 items-center justify-center rounded-xl text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
-                    chapter === current.chapter && selectedBookId === current.bookId
-                      ? "bg-accent text-white"
-                      : "bg-paper-muted text-ink hover:bg-line/40"
-                  }`}
-                >
-                  {chapter + 1}
-                </button>
-              ))}
+              {chapters.map((chapter) => {
+                const isRead = readKeys.has(readChapterKey(selectedBookId!, chapter));
+                const isCurrent = chapter === current.chapter && selectedBookId === current.bookId;
+                return (
+                  <button
+                    key={chapter}
+                    type="button"
+                    onClick={() => pickChapter(chapter)}
+                    aria-label={`Capítulo ${chapter + 1}${isRead ? " (lido)" : ""}`}
+                    className={`flex h-12 items-center justify-center gap-1 rounded-xl text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+                      isCurrent
+                        ? "bg-accent text-white"
+                        : isRead
+                          ? "bg-paper-muted text-ink ring-1 ring-inset ring-accent/50"
+                          : "bg-paper-muted text-ink hover:bg-line/40"
+                    }`}
+                  >
+                    {chapter + 1}
+                    {isRead && <Check size={12} strokeWidth={3} aria-hidden="true" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

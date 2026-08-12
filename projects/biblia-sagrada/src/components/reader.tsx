@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Menu, Sun, Moon, ChevronLeft, ChevronRight, Pencil } from "lucide-react";
-import { getChapter, getDownloadedVersions, getIndex, getStudyRecords, type BibleIndex, type Chapter, type StudyRecord } from "@/lib/bible";
+import { Menu, Sun, Moon, ChevronLeft, ChevronRight, Pencil, Check, Circle } from "lucide-react";
+import { getChapter, getDownloadedVersions, getIndex, getReadChapterKeys, getStudyRecords, readChapterKey, toggleChapterRead, type BibleIndex, type Chapter, type StudyRecord } from "@/lib/bible";
 import {
   applyTheme,
   readFontScale,
@@ -75,10 +75,18 @@ export default function Reader() {
   const [studyRecords, setStudyRecords] = useState<StudyRecord[]>([]);
   const [verseActionsOpen, setVerseActionsOpen] = useState(false);
   const [verseActionsVerse, setVerseActionsVerse] = useState<{ book: number; chapter: number; verse: number } | null>(null);
+  const [readKeys, setReadKeys] = useState<Set<string>>(new Set());
 
   // Carrega o registro de traduções baixadas (IDB meta) no mount.
   useEffect(() => {
     getDownloadedVersions().then(setDownloaded).catch(() => {});
+  }, []);
+
+  // Carrega as chaves de capítulos lidos (IDB v4) no mount.
+  useEffect(() => {
+    getReadChapterKeys()
+      .then((keys) => setReadKeys(new Set(keys)))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -235,6 +243,18 @@ export default function Reader() {
       .catch(() => setStudyRecords([]));
   }, [chapter, version]);
 
+  const handleToggleRead = useCallback(async () => {
+    if (!chapter) return;
+    const nowRead = await toggleChapterRead(chapter.book.id, chapter.chapter);
+    setReadKeys((prev) => {
+      const next = new Set(prev);
+      const key = readChapterKey(chapter.book.id, chapter.chapter);
+      if (nowRead) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }, [chapter]);
+
   if (!index) {
     return (
       <Shell>
@@ -296,6 +316,8 @@ export default function Reader() {
             chapter={chapter}
             fontScale={fontScale}
             studyRecords={studyRecords}
+            isRead={readKeys.has(readChapterKey(chapter.book.id, chapter.chapter))}
+            onToggleRead={handleToggleRead}
             onVerseClick={handleVerseClick}
           />
         )}
@@ -310,6 +332,7 @@ export default function Reader() {
         open={pickerOpen}
         index={index}
         current={pos}
+        readKeys={readKeys}
         onSelect={goTo}
         onClose={() => setPickerOpen(false)}
       />
@@ -448,18 +471,38 @@ function ChapterView({
   chapter,
   fontScale,
   studyRecords,
+  isRead,
+  onToggleRead,
   onVerseClick,
 }: {
   chapter: Chapter;
   fontScale: number;
   studyRecords: StudyRecord[];
+  isRead: boolean;
+  onToggleRead: () => void;
   onVerseClick: (book: number, chapter: number, verse: number) => void;
 }) {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-6 sm:px-8">
-      <h1 className="mb-6 font-serif text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-        {chapter.book.name} {chapter.chapter + 1}
-      </h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-serif text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+          {chapter.book.name} {chapter.chapter + 1}
+        </h1>
+        <button
+          type="button"
+          onClick={onToggleRead}
+          aria-pressed={isRead}
+          aria-label={isRead ? "Marcar capítulo como não lido" : "Marcar capítulo como lido"}
+          className={`flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+            isRead
+              ? "border-accent/50 bg-accent/10 text-accent"
+              : "border-line text-ink-soft hover:bg-paper-muted hover:text-ink"
+          }`}
+        >
+          {isRead ? <Check size={16} /> : <Circle size={16} />}
+          {isRead ? "Lido" : "Marcar como lido"}
+        </button>
+      </div>
       <div
         className="space-y-4 font-serif leading-[1.75] text-ink"
         style={{ fontSize: `${(fontScale * 1.125).toFixed(2)}rem` }}
