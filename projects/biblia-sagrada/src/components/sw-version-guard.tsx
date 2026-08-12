@@ -2,47 +2,62 @@
 
 import { useEffect } from "react";
 
-/**
- * Verifica se o Service Worker está serveindo uma versão obsoleta.
- * Compara a data do HTML carregado com o timestamp do deploy atual.
- * Se o SW estiver stale, força a limpeza e recarrega.
- */
 const DEPLOY_KEY = "bs-deploy-ts";
+const SW_VERSION_KEY = "bs-sw-version";
 
 export default function SwVersionGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Marca o timestamp de quando esta versão foi carregada.
     const currentTs = Date.now();
-    const storedTs = localStorage.getItem(DEPLOY_KEY);
 
-    // Se já tinha um timestamp e é muito diferente (mais de 24h),
-    // pode ser um cache stale — mas só recarrega se o SW estiver ativo.
-    if (storedTs && "serviceWorker" in navigator) {
-      const diff = Math.abs(currentTs - Number(storedTs));
-      const DAY = 86400000;
-      if (diff > DAY * 7) {
-        // SW antigo demais — limpa e recarrega.
-        navigator.serviceWorker.getRegistrations().then((regs) => {
-          regs.forEach((r) => r.unregister());
-        });
-        caches.keys().then((keys) => {
-          keys.forEach((k) => caches.delete(k));
-        });
+    // Verifica se há SW registrado.
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        if (regs.length === 0) return;
+
+        // Se o controller não está ativo, o SW ainda não assumiu — espera.
+        if (!navigator.serviceWorker.controller) {
+          // SW registrado mas não ativo: pode estar instalando.
+          // Força ativação via skipWaiting (o SW já tem skipWaiting: true).
+          for (const reg of regs) {
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: "SKIP_WAITING" });
+            }
+          }
+        }
+      });
+
+      // Quando o SW assume, recarrega para garantir chunks novos.
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        // Evita loop de reload: só recarrega se não recarregou há menos de 2s.
+        const lastReload = sessionStorage.getItem("bs-sw-reload");
+        if (!lastReload || Date.now() - Number(lastReload) > 2000) {
+          sessionStorage.setItem("bs-sw-reload", String(Date.now()));
+          window.location.reload();
+        }
+      });
+    }
+
+    // Limpa cache do SW se estiver muito antigo (> 14 dias).
+    const storedTs = localStorage.getItem(DEPLOY_KEY);
+    if (storedTs) {
+      const diff = currentTs - Number(storedTs);
+      const TWO_WEEKS = 14 * 86400000;
+      if (diff > TWO_WEEKS) {
         localStorage.removeItem(DEPLOY_KEY);
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations().then((regs) => {
+            regs.forEach((r) => r.unregister());
+          });
+        }
+        if ("caches" in window) {
+          caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+        }
         window.location.reload();
         return;
       }
     }
 
     localStorage.setItem(DEPLOY_KEY, String(currentTs));
-
-    // Listener para quando o SW novo precisa ativar.
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
-        // Novo SW assumiu — recarrega para garantir chunks novos.
-        window.location.reload();
-      });
-    }
   }, []);
 
   return <>{children}</>;
