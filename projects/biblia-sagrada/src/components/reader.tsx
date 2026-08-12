@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Menu, Sun, Moon, ChevronLeft, ChevronRight, Pencil, Check, Circle } from "lucide-react";
+import { Menu, Sun, Moon, ChevronLeft, ChevronRight, Pencil, Check, Circle, Copy, CheckCheck, Square, SquareCheck } from "lucide-react";
 import { getChapter, getChapterSectionTitles, getDownloadedVersions, getIndex, getReadChapterKeys, getStudyRecords, readChapterKey, toggleChapterRead, type BibleIndex, type Chapter, type SectionTitle, type StudyRecord } from "@/lib/bible";
 import {
   applyTheme,
@@ -77,6 +77,9 @@ export default function Reader() {
   const [verseActionsVerse, setVerseActionsVerse] = useState<{ book: number; chapter: number; verse: number } | null>(null);
   const [readKeys, setReadKeys] = useState<Set<string>>(new Set());
   const [sectionTitles, setSectionTitles] = useState<SectionTitle[]>([]);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedVerses, setSelectedVerses] = useState<Set<number>>(new Set());
+  const [copiedSelection, setCopiedSelection] = useState(false);
 
   // Carrega o registro de traduções baixadas (IDB meta) no mount.
   useEffect(() => {
@@ -260,6 +263,35 @@ export default function Reader() {
     });
   }, [chapter]);
 
+  const toggleSelectMode = useCallback(() => {
+    setSelectMode((prev) => !prev);
+    setSelectedVerses(new Set());
+  }, []);
+
+  const toggleVerseSelection = useCallback((verseIdx: number) => {
+    setSelectedVerses((prev) => {
+      const next = new Set(prev);
+      if (next.has(verseIdx)) next.delete(verseIdx);
+      else next.add(verseIdx);
+      return next;
+    });
+  }, []);
+
+  const copySelectedVerses = useCallback(async () => {
+    if (!chapter || selectedVerses.size === 0) return;
+    const sorted = Array.from(selectedVerses).sort((a, b) => a - b);
+    const lines = sorted.map((i) => chapter.verses[i]);
+    const ref = `${chapter.book.abbrev} ${chapter.chapter + 1}:${sorted[0] + 1}${sorted.length > 1 ? "-" + (sorted[sorted.length - 1] + 1) : ""}`;
+    const full = lines.join("\n") + "\n\n" + ref + " — " + version.toUpperCase();
+    try {
+      await navigator.clipboard.writeText(full);
+    } catch {
+      /* clipboard indisponível */
+    }
+    setCopiedSelection(true);
+    setTimeout(() => setCopiedSelection(false), 1500);
+  }, [chapter, selectedVerses, version]);
+
   if (!index) {
     return (
       <Shell>
@@ -280,11 +312,13 @@ export default function Reader() {
           versionLabel={chapter?.version.shortLabel ?? (index.versions.find((v) => v.code === version)?.shortLabel ?? version)}
           theme={theme}
           fontScale={fontScale}
+          selectMode={selectMode}
           onOpenPicker={() => setPickerOpen(true)}
           onOpenVersionPicker={() => setVersionPickerOpen(true)}
           onToggleTheme={toggleTheme}
           onFontDown={() => bumpFont(-FONT_SCALE_STEP)}
           onFontUp={() => bumpFont(FONT_SCALE_STEP)}
+          onToggleSelect={toggleSelectMode}
         />
         {offline && (
           <div className="border-b border-line bg-paper-muted px-4 py-1.5 text-center text-xs text-ink-soft">
@@ -322,9 +356,12 @@ export default function Reader() {
             fontScale={fontScale}
             studyRecords={studyRecords}
             sectionTitles={sectionTitles}
+            selectMode={selectMode}
+            selectedVerses={selectedVerses}
             isRead={readKeys.has(readChapterKey(chapter.book.id, chapter.chapter))}
             onToggleRead={handleToggleRead}
             onVerseClick={handleVerseClick}
+            onToggleVerse={toggleVerseSelection}
           />
         )}
         <Footer
@@ -362,6 +399,18 @@ export default function Reader() {
           if (downloadTarget) handleDownloadDone(downloadTarget);
         }}
       />
+      {selectMode && selectedVerses.size > 0 && (
+        <div className="fixed inset-x-0 bottom-16 z-50 flex justify-center px-4 pb-2">
+          <button
+            type="button"
+            onClick={copySelectedVerses}
+            className="flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-white shadow-lg transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            {copiedSelection ? <CheckCheck size={18} /> : <Copy size={18} />}
+            {copiedSelection ? "Copiado!" : `Copiar ${selectedVerses.size} versículo${selectedVerses.size > 1 ? "s" : ""}`}
+          </button>
+        </div>
+      )}
       <VerseActions
         open={verseActionsOpen}
         verse={verseActionsVerse}
@@ -388,21 +437,25 @@ function Header({
   versionLabel,
   theme,
   fontScale,
+  selectMode,
   onOpenPicker,
   onOpenVersionPicker,
   onToggleTheme,
   onFontDown,
   onFontUp,
+  onToggleSelect,
 }: {
   title: string;
   versionLabel: string;
   theme: Theme;
   fontScale: number;
+  selectMode: boolean;
   onOpenPicker: () => void;
   onOpenVersionPicker: () => void;
   onToggleTheme: () => void;
   onFontDown: () => void;
   onFontUp: () => void;
+  onToggleSelect: () => void;
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
@@ -441,6 +494,13 @@ function Header({
             A+
           </IconButton>
           <IconButton
+            label={selectMode ? "Sair do modo seleção" : "Selecionar versículos"}
+            onClick={onToggleSelect}
+            active={selectMode}
+          >
+            {selectMode ? <SquareCheck size={20} /> : <Square size={20} />}
+          </IconButton>
+          <IconButton
             label={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo noturno"}
             onClick={onToggleTheme}
           >
@@ -455,10 +515,12 @@ function Header({
 function IconButton({
   label,
   onClick,
+  active,
   children,
 }: {
   label: string;
   onClick: () => void;
+  active?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -467,7 +529,11 @@ function IconButton({
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="flex h-11 min-w-11 items-center justify-center rounded-full text-sm text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+      className={`flex h-11 min-w-11 items-center justify-center rounded-full text-sm transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+        active
+          ? "bg-accent text-white"
+          : "text-ink-soft hover:bg-paper-muted hover:text-ink"
+      }`}
     >
       {children}
     </button>
@@ -479,17 +545,23 @@ function ChapterView({
   fontScale,
   studyRecords,
   sectionTitles,
+  selectMode,
+  selectedVerses,
   isRead,
   onToggleRead,
   onVerseClick,
+  onToggleVerse,
 }: {
   chapter: Chapter;
   fontScale: number;
   studyRecords: StudyRecord[];
   sectionTitles: SectionTitle[];
+  selectMode: boolean;
+  selectedVerses: Set<number>;
   isRead: boolean;
   onToggleRead: () => void;
   onVerseClick: (book: number, chapter: number, verse: number) => void;
+  onToggleVerse: (verseIdx: number) => void;
 }) {
   // Título de seção que abre o capítulo (ex.: Is 61 → "A salvação de Israel").
   const openingTitle = sectionTitles.find((t) => t.v === 1)?.title;
@@ -520,26 +592,43 @@ function ChapterView({
               )}
               <button
                 type="button"
-                onClick={() => onVerseClick(chapter.book.id, chapter.chapter, i)}
-                className="block w-full rounded-lg px-2 py-2 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
-                style={record?.color ? { backgroundColor: record.color, color: "var(--color-mark-ink)" } : undefined}
-                aria-label={`Versículo ${i + 1} (${chapter.book.abbrev} ${chapter.chapter + 1}:${i + 1})`}
+                onClick={() => selectMode ? onToggleVerse(i) : onVerseClick(chapter.book.id, chapter.chapter, i)}
+                className={`block w-full rounded-lg px-2 py-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+                  selectMode
+                    ? selectedVerses.has(i)
+                      ? "bg-accent/15 ring-1 ring-accent/40"
+                      : "hover:bg-paper-muted"
+                    : "hover:bg-paper-muted"
+                }`}
+                style={!selectMode && record?.color ? { backgroundColor: record.color, color: "var(--color-mark-ink)" } : undefined}
+                aria-label={selectMode ? `Selecionar versículo ${i + 1}` : `Versículo ${i + 1} (${chapter.book.abbrev} ${chapter.chapter + 1}:${i + 1})`}
               >
-                <span className="text-pretty">
-                  <sup
-                    className={`mr-2 select-none text-[0.6em] font-semibold ${marked ? "text-[inherit]" : "text-accent"}`}
-                  >
-                    {i + 1}
-                  </sup>
-                  {verse}
-                  {hasAnnotation && (
-                    <span
-                      className={`ml-1 inline-flex text-xs ${marked ? "text-[inherit]" : "text-accent"}`}
-                      aria-label="Tem anotação"
-                    >
-                      <Pencil size={12} />
+                <span className="flex items-start gap-2 text-pretty">
+                  {selectMode && (
+                    <span className="mt-1 flex-shrink-0">
+                      {selectedVerses.has(i) ? (
+                        <SquareCheck size={18} className="text-accent" />
+                      ) : (
+                        <Square size={18} className="text-ink-faint" />
+                      )}
                     </span>
                   )}
+                  <span>
+                    <sup
+                      className={`mr-2 select-none text-[0.6em] font-semibold ${marked && !selectMode ? "text-[inherit]" : "text-accent"}`}
+                    >
+                      {i + 1}
+                    </sup>
+                    {verse}
+                    {hasAnnotation && !selectMode && (
+                      <span
+                        className={`ml-1 inline-flex text-xs ${marked ? "text-[inherit]" : "text-accent"}`}
+                        aria-label="Tem anotação"
+                      >
+                        <Pencil size={12} />
+                      </span>
+                    )}
+                  </span>
                 </span>
               </button>
             </div>
