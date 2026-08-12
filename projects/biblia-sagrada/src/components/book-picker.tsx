@@ -1,8 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft, Search, X } from "lucide-react";
 import type { BibleIndex } from "@/lib/bible";
+
+/** Normaliza para busca sem diferenciar maiúsculas nem acentos (Gênesis ≈ genesis). */
+function normalizeForSearch(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 interface BookPickerProps {
   open: boolean;
@@ -14,11 +22,15 @@ interface BookPickerProps {
 
 export default function BookPicker({ open, index, current, onSelect, onClose }: BookPickerProps) {
   const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
+  const [query, setQuery] = useState("");
   const [prevOpen, setPrevOpen] = useState(open);
 
   if (prevOpen !== open) {
     setPrevOpen(open);
-    if (open) setSelectedBookId(current.bookId);
+    if (open) {
+      setSelectedBookId(current.bookId);
+      setQuery("");
+    }
   }
 
   const escHandler = useCallback(
@@ -39,6 +51,12 @@ export default function BookPicker({ open, index, current, onSelect, onClose }: 
   const oldTestament = index.books.slice(0, 39);
   const newTestament = index.books.slice(39);
   const selectedBook = index.books[selectedBookId ?? current.bookId];
+
+  const normalizedQuery = normalizeForSearch(query.trim());
+  const searchResults =
+    normalizedQuery.length > 0
+      ? index.books.filter((b) => normalizeForSearch(b.name).includes(normalizedQuery))
+      : null;
 
   const pickBook = (bookId: number) => {
     setSelectedBookId(bookId);
@@ -89,26 +107,71 @@ export default function BookPicker({ open, index, current, onSelect, onClose }: 
 
         {selectedBookId === null ? (
           <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2">
-            <SectionLabel label="Antigo Testamento" />
-            {oldTestament.map((book) => (
-              <BookRow
-                key={book.id}
-                name={book.name}
-                chapters={book.chapters}
-                isCurrent={book.id === current.bookId}
-                onSelect={() => pickBook(book.id)}
-              />
-            ))}
-            <SectionLabel label="Novo Testamento" />
-            {newTestament.map((book) => (
-              <BookRow
-                key={book.id}
-                name={book.name}
-                chapters={book.chapters}
-                isCurrent={book.id === current.bookId}
-                onSelect={() => pickBook(book.id)}
-              />
-            ))}
+            <div className="px-1 pb-1 pt-2">
+              <div className="relative">
+                <Search
+                  size={18}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint"
+                  aria-hidden="true"
+                />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Buscar livro pelo nome…"
+                  aria-label="Buscar livro pelo nome"
+                  className="h-11 w-full rounded-xl border border-line bg-paper pl-10 pr-10 text-base text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                />
+                {query.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery("")}
+                    aria-label="Limpar busca"
+                    className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
+            {searchResults === null ? (
+              <>
+                <SectionLabel label="Antigo Testamento" />
+                {oldTestament.map((book) => (
+                  <BookRow
+                    key={book.id}
+                    name={book.name}
+                    chapters={book.chapters}
+                    isCurrent={book.id === current.bookId}
+                    onSelect={() => pickBook(book.id)}
+                  />
+                ))}
+                <SectionLabel label="Novo Testamento" />
+                {newTestament.map((book) => (
+                  <BookRow
+                    key={book.id}
+                    name={book.name}
+                    chapters={book.chapters}
+                    isCurrent={book.id === current.bookId}
+                    onSelect={() => pickBook(book.id)}
+                  />
+                ))}
+              </>
+            ) : searchResults.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-ink-soft">
+                Nenhum livro encontrado para “{query.trim()}”.
+              </p>
+            ) : (
+              searchResults.map((book) => (
+                <BookRow
+                  key={book.id}
+                  name={book.name}
+                  chapters={book.chapters}
+                  isCurrent={book.id === current.bookId}
+                  onSelect={() => pickBook(book.id)}
+                />
+              ))
+            )}
           </div>
         ) : (
           <div className="min-h-0 flex-1 overflow-y-auto p-4">

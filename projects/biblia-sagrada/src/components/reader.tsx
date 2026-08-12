@@ -23,6 +23,13 @@ import VerseActions from "@/components/verse-actions";
 
 const LAST_POS_KEY = "bs-last-pos";
 
+/**
+ * Texto sobre marca-texto: as 5 cores de marcador são pastéis claros
+ * (HIGHLIGHT_COLORS em verse-actions.tsx), então o texto precisa ser escuro
+ * fixo — no tema noturno o `--ink` é claro e ficaria ilegível (D-16: contraste).
+ */
+const MARK_TEXT_COLOR = "#211d17";
+
 interface Position {
   bookId: number;
   chapter: number;
@@ -467,20 +474,28 @@ function ChapterView({
         {chapter.verses.map((verse, i) => {
           const record = studyRecords.find((r) => r.ref.verse === i);
           const hasAnnotation = record?.text;
+          const marked = Boolean(record?.color);
           return (
             <button
               key={i}
               type="button"
               onClick={() => onVerseClick(chapter.book.id, chapter.chapter, i)}
               className="block w-full rounded-lg px-2 py-1 text-left transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent"
-              style={record?.color ? { backgroundColor: record.color } : undefined}
+              style={record?.color ? { backgroundColor: record.color, color: MARK_TEXT_COLOR } : undefined}
               aria-label={`Versículo ${i + 1} (${chapter.book.abbrev} ${chapter.chapter + 1}:${i + 1})`}
             >
               <span className="text-pretty">
-                <sup className="mr-2 select-none text-[0.6em] font-semibold text-accent">{i + 1}</sup>
+                <sup
+                  className={`mr-2 select-none text-[0.6em] font-semibold ${marked ? "text-[inherit]" : "text-accent"}`}
+                >
+                  {i + 1}
+                </sup>
                 {verse}
                 {hasAnnotation && (
-                  <span className="ml-1 inline-flex text-xs text-accent" aria-label="Tem anotação">
+                  <span
+                    className={`ml-1 inline-flex text-xs ${marked ? "text-[inherit]" : "text-accent"}`}
+                    aria-label="Tem anotação"
+                  >
                     <Pencil size={12} />
                   </span>
                 )}
