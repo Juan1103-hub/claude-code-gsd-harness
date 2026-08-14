@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import { Menu, Sun, Moon, ChevronLeft, ChevronRight, Pencil, Check, Circle, Copy, CheckCheck, Square, SquareCheck } from "lucide-react";
@@ -44,13 +44,13 @@ function initialPosition(index: BibleIndex): Position {
       const book = index.books.find((x) => x.id === parsed.bookId);
       if (book && parsed.chapter >= 0 && parsed.chapter < book.chapters) return parsed;
     } catch {
-      /* posição inválida — usar padrão */
+      /* posiÃ§Ã£o invÃ¡lida â€” usar padrÃ£o */
     }
   }
   return { bookId: 0, chapter: 0 };
 }
 
-/** Lazy init: URL ?v= é o estado navegável (D-02); fallback localStorage bs-version. */
+/** Lazy init: URL ?v= Ã© o estado navegÃ¡vel (D-02); fallback localStorage bs-version. */
 function initialVersion(): string {
   if (typeof window === "undefined") return "tb";
   const params = new URLSearchParams(window.location.search);
@@ -81,12 +81,12 @@ export default function Reader() {
   const [selectedVerses, setSelectedVerses] = useState<Set<number>>(new Set());
   const [copiedSelection, setCopiedSelection] = useState(false);
 
-  // Carrega o registro de traduções baixadas (IDB meta) no mount.
+  // Carrega o registro de traduÃ§Ãµes baixadas (IDB meta) no mount.
   useEffect(() => {
     getDownloadedVersions().then(setDownloaded).catch(() => {});
   }, []);
 
-  // Carrega as chaves de capítulos lidos (IDB v4) no mount.
+  // Carrega as chaves de capÃ­tulos lidos (IDB v4) no mount.
   useEffect(() => {
     getReadChapterKeys()
       .then((keys) => setReadKeys(new Set(keys)))
@@ -100,7 +100,7 @@ export default function Reader() {
         if (cancelled) return;
         setIndex(idx);
         setPos(initialPosition(idx));
-        // URL é o estado navegável — se ?v= veio no deep-link, ele vence (D-02).
+        // URL Ã© o estado navegÃ¡vel â€” se ?v= veio no deep-link, ele vence (D-02).
         const params = new URLSearchParams(window.location.search);
         const v = params.get("v");
         if (v && (SUPPORTED_VERSIONS as readonly string[]).includes(v)) {
@@ -108,7 +108,7 @@ export default function Reader() {
         }
       })
       .catch((err) => {
-        console.error("[Bíblia] Erro ao carregar índice:", err);
+        console.error("[BÃ­blia] Erro ao carregar Ã­ndice:", err);
         if (!cancelled) setStatus("error");
       });
     return () => {
@@ -139,7 +139,7 @@ export default function Reader() {
         }
         setChapter(result);
         setStatus("ready");
-        document.title = `${result.book.name} ${result.chapter + 1} — Bíblia Sagrada`;
+        document.title = `${result.book.name} ${result.chapter + 1} â€” BÃ­blia Sagrada`;
         const url = new URL(window.location.href);
         url.searchParams.set("b", String(result.book.id));
         url.searchParams.set("c", String(result.chapter));
@@ -148,17 +148,17 @@ export default function Reader() {
         window.history.replaceState(null, "", url.toString());
         localStorage.setItem(LAST_POS_KEY, JSON.stringify({ bookId: result.book.id, chapter: result.chapter }));
         writeVersion(version);
-        // Carrega registros de estudo (marcadores/anotações) do capítulo.
+        // Carrega registros de estudo (marcadores/anotaÃ§Ãµes) do capÃ­tulo.
         getStudyRecords(version, result.book.id, result.chapter)
           .then(setStudyRecords)
           .catch(() => setStudyRecords([]));
-        // Títulos de seção editoriais (NTLH) para este capítulo.
+        // TÃ­tulos de seÃ§Ã£o editoriais (NTLH) para este capÃ­tulo.
         getChapterSectionTitles(result.book.abbrev, result.chapter + 1)
           .then(setSectionTitles)
           .catch(() => setSectionTitles([]));
       })
       .catch((err) => {
-        console.error("[Bíblia] Erro ao carregar capítulo:", err);
+        console.error("[BÃ­blia] Erro ao carregar capÃ­tulo:", err);
         if (!cancelled) setStatus("error");
       });
     return () => {
@@ -232,7 +232,7 @@ export default function Reader() {
   );
 
   const handleVersionChange = useCallback((code: string) => {
-    // O efeito de capítulo re-renderiza com a nova versão; sem reload, sem scroll reset.
+    // O efeito de capÃ­tulo re-renderiza com a nova versÃ£o; sem reload, sem scroll reset.
     setVersion(code);
   }, []);
 
@@ -284,11 +284,11 @@ export default function Reader() {
     const sorted = Array.from(selectedVerses).sort((a, b) => a - b);
     const lines = sorted.map((i) => chapter.verses[i]);
     const ref = `${chapter.book.abbrev} ${chapter.chapter + 1}:${sorted[0] + 1}${sorted.length > 1 ? "-" + (sorted[sorted.length - 1] + 1) : ""}`;
-    const full = lines.join("\n") + "\n\n" + ref + " — " + version.toUpperCase();
+    const full = lines.join("\n") + "\n\n" + ref + " â€” " + version.toUpperCase();
     try {
       await navigator.clipboard.writeText(full);
     } catch {
-      /* clipboard indisponível */
+      /* clipboard indisponÃ­vel */
     }
     setCopiedSelection(true);
     setTimeout(() => setCopiedSelection(false), 1500);
@@ -299,7 +299,7 @@ export default function Reader() {
       <Shell>
         <main className="flex flex-1 items-center justify-center px-6">
           <p className="font-serif text-lg text-ink-soft" role="status">
-            Carregando…
+            Carregandoâ€¦
           </p>
         </main>
       </Shell>
@@ -310,7 +310,7 @@ export default function Reader() {
     <>
       <Shell>
         <Header
-          title={chapter ? `${chapter.book.name} ${chapter.chapter + 1}` : "Bíblia Sagrada"}
+          title={chapter ? `${chapter.book.name} ${chapter.chapter + 1}` : "BÃ­blia Sagrada"}
           versionLabel={chapter?.version.shortLabel ?? (index.versions.find((v) => v.code === version)?.shortLabel ?? version)}
           theme={theme}
           fontScale={fontScale}
@@ -324,21 +324,21 @@ export default function Reader() {
         />
         {offline && (
           <div className="border-b border-line bg-paper-muted px-4 py-1.5 text-center text-xs text-ink-soft">
-            Você está offline — o conteúdo já baixado permanece disponível.
+            VocÃª estÃ¡ offline â€” o conteÃºdo jÃ¡ baixado permanece disponÃ­vel.
           </div>
         )}
         {status === "loading" && (
           <main className="flex flex-1 items-center justify-center px-6" aria-busy="true">
             <p className="font-serif text-lg text-ink-soft" role="status">
-              Carregando {index.books[pos.bookId]?.name} {pos.chapter + 1}…
+              Carregando {index.books[pos.bookId]?.name} {pos.chapter + 1}â€¦
             </p>
           </main>
         )}
         {status === "error" && (
           <main className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-            <p className="font-serif text-lg text-ink">Não foi possível carregar este capítulo.</p>
+            <p className="font-serif text-lg text-ink">NÃ£o foi possÃ­vel carregar este capÃ­tulo.</p>
             <p className="text-sm text-ink-soft">
-              Verifique sua conexão. Se estiver offline, o capítulo precisa ter sido aberto antes.
+              Verifique sua conexÃ£o. Se estiver offline, o capÃ­tulo precisa ter sido aberto antes.
             </p>
             <button
               type="button"
@@ -409,7 +409,7 @@ export default function Reader() {
             className="flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-medium text-white shadow-lg transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-accent"
           >
             {copiedSelection ? <CheckCheck size={18} /> : <Copy size={18} />}
-            {copiedSelection ? "Copiado!" : `Copiar ${selectedVerses.size} versículo${selectedVerses.size > 1 ? "s" : ""}`}
+            {copiedSelection ? "Copiado!" : `Copiar ${selectedVerses.size} versÃ­culo${selectedVerses.size > 1 ? "s" : ""}`}
           </button>
         </div>
       )}
@@ -466,7 +466,7 @@ function Header({
           type="button"
           onClick={onOpenPicker}
           className="flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
-          aria-label="Escolher livro e capítulo"
+          aria-label="Escolher livro e capÃ­tulo"
         >
           <Menu size={20} />
         </button>
@@ -482,21 +482,21 @@ function Header({
           type="button"
           onClick={onOpenVersionPicker}
           className="flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-xs font-semibold text-ink-soft transition-colors hover:bg-paper-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-accent"
-          aria-label="Trocar tradução"
-          title={`Trocar tradução (${versionLabel})`}
+          aria-label="Trocar traduÃ§Ã£o"
+          title={`Trocar traduÃ§Ã£o (${versionLabel})`}
         >
           {versionLabel}
         </button>
         <div className="flex items-center">
           <span className="hidden h-5 w-px bg-line sm:block" aria-hidden="true" />
           <IconButton label={`Diminuir fonte (${fontScale.toFixed(1).replace(".", ",")})`} onClick={onFontDown}>
-            A−
+            Aâˆ’
           </IconButton>
           <IconButton label={`Aumentar fonte (${fontScale.toFixed(1).replace(".", ",")})`} onClick={onFontUp}>
             A+
           </IconButton>
           <IconButton
-            label={selectMode ? "Sair do modo seleção" : "Selecionar versículos"}
+            label={selectMode ? "Sair do modo seleÃ§Ã£o" : "Selecionar versÃ­culos"}
             onClick={onToggleSelect}
             active={selectMode}
           >
@@ -565,10 +565,21 @@ function ChapterView({
   onVerseClick: (book: number, chapter: number, verse: number) => void;
   onToggleVerse: (verseIdx: number) => void;
 }) {
-  // Título de seção que abre o capítulo (ex.: Is 61 → "A salvação de Israel").
+  // TÃ­tulo de seÃ§Ã£o que abre o capÃ­tulo (ex.: Is 61 â†’ "A salvaÃ§Ã£o de Israel").
   const openingTitle = sectionTitles.find((t) => t.v === 1)?.title;
-  // Demais títulos, posicionados no versículo onde cada seção começa.
+  // Demais tÃ­tulos, posicionados no versÃ­culo onde cada seÃ§Ã£o comeÃ§a.
   const inlineTitles = sectionTitles.filter((t) => t.v !== 1);
+  // Fluxo contÃ­nuo: versÃ­culos em parÃ¡grafos, quebrando apenas nos tÃ­tulos de seÃ§Ã£o.
+  const paragraphs: number[][] = [];
+  let currentParagraph: number[] = [];
+  chapter.verses.forEach((_, i) => {
+    if (currentParagraph.length > 0 && inlineTitles.some((t) => t.v === i + 1)) {
+      paragraphs.push(currentParagraph);
+      currentParagraph = [];
+    }
+    currentParagraph.push(i);
+  });
+  if (currentParagraph.length > 0) paragraphs.push(currentParagraph);
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-6 sm:px-8">
       {openingTitle && (
@@ -577,62 +588,61 @@ function ChapterView({
         </h1>
       )}
       <div
-        className="space-y-4 font-serif leading-[1.75] text-ink"
+        className="font-serif text-ink"
         style={{ fontSize: `${(fontScale * 1.125).toFixed(2)}rem` }}
       >
-        {chapter.verses.map((verse, i) => {
-          const record = studyRecords.find((r) => r.ref.verse === i);
-          const hasAnnotation = record?.text;
-          const marked = Boolean(record?.color);
-          const sectionTitle = inlineTitles.find((t) => t.v === i + 1);
+        {paragraphs.map((para, pIdx) => {
+          const sectionTitle = inlineTitles.find((t) => t.v === para[0] + 1);
           return (
-            <div key={i} className="border-b border-line last:border-b-0">
+            <div
+              key={pIdx}
+              className={`${sectionTitle ? "mt-6 first:mt-0" : ""} mb-5 last:mb-0`}
+            >
               {sectionTitle && (
-                <p className="mb-2 mt-4 font-serif text-sm font-semibold tracking-wide text-accent first:mt-0 sm:text-base">
+                <p className="mb-2 font-serif text-sm font-semibold tracking-wide text-accent sm:text-base">
                   {sectionTitle.title}
                 </p>
               )}
-              <button
-                type="button"
-                onClick={() => selectMode ? onToggleVerse(i) : onVerseClick(chapter.book.id, chapter.chapter, i)}
-                className={`block w-full rounded-lg px-2 py-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
-                  selectMode
-                    ? selectedVerses.has(i)
-                      ? "bg-accent/15 ring-1 ring-accent/40"
-                      : "hover:bg-paper-muted"
-                    : "hover:bg-paper-muted"
-                }`}
-                style={!selectMode && record?.color ? { backgroundColor: record.color, color: "var(--color-mark-ink)" } : undefined}
-                aria-label={selectMode ? `Selecionar versículo ${i + 1}` : `Versículo ${i + 1} (${chapter.book.abbrev} ${chapter.chapter + 1}:${i + 1})`}
-              >
-                <span className="flex items-start gap-2 text-pretty">
-                  {selectMode && (
-                    <span className="mt-1 flex-shrink-0">
-                      {selectedVerses.has(i) ? (
-                        <SquareCheck size={18} className="text-accent" />
-                      ) : (
-                        <Square size={18} className="text-ink-faint" />
-                      )}
-                    </span>
-                  )}
-                  <span>
-                    <sup
-                      className={`mr-2 select-none text-[0.6em] font-semibold ${marked && !selectMode ? "text-[inherit]" : "text-accent"}`}
-                    >
-                      {i + 1}
-                    </sup>
-                    {verse}
-                    {hasAnnotation && !selectMode && (
-                      <span
-                        className={`ml-1 inline-flex text-xs ${marked ? "text-[inherit]" : "text-accent"}`}
-                        aria-label="Tem anotação"
+              <p className="leading-[1.75] text-pretty">
+                {para.map((i) => {
+                  const record = studyRecords.find((r) => r.ref.verse === i);
+                  const hasAnnotation = record?.text;
+                  const marked = Boolean(record?.color);
+                  return (
+                    <span key={i} className="inline">
+                      <button
+                        type="button"
+                        onClick={() => selectMode ? onToggleVerse(i) : onVerseClick(chapter.book.id, chapter.chapter, i)}
+                        className={`inline align-baseline text-left focus-visible:outline-2 focus-visible:outline-accent ${
+                          selectMode
+                            ? selectedVerses.has(i)
+                              ? "bg-accent/15"
+                              : "hover:bg-paper-muted"
+                            : "hover:bg-paper-muted"
+                        }`}
+                        style={!selectMode && record?.color ? { backgroundColor: record.color, color: "var(--color-mark-ink)" } : undefined}
+                        aria-label={selectMode ? `Selecionar versÃ­culo ${i + 1}` : `VersÃ­culo ${i + 1} (${chapter.book.abbrev} ${chapter.chapter + 1}:${i + 1})`}
                       >
-                        <Pencil size={12} />
-                      </span>
-                    )}
-                  </span>
-                </span>
-              </button>
+                        <sup
+                          className={`mr-1 select-none text-[0.55em] font-semibold ${marked && !selectMode ? "text-[inherit]" : "text-accent"}`}
+                        >
+                          {i + 1}
+                        </sup>
+                        {chapter.verses[i]}
+                        {hasAnnotation && !selectMode && (
+                          <span
+                            className={`ml-1 inline-flex text-xs ${marked ? "text-[inherit]" : "text-accent"}`}
+                            aria-label="Tem anotaÃ§Ã£o"
+                          >
+                            <Pencil size={12} />
+                          </span>
+                        )}
+                      </button>
+                      {" "}
+                    </span>
+                  );
+                })}
+              </p>
             </div>
           );
         })}
@@ -642,7 +652,7 @@ function ChapterView({
           type="button"
           onClick={onToggleRead}
           aria-pressed={isRead}
-          aria-label={isRead ? "Marcar capítulo como não lido" : "Marcar capítulo como lido"}
+          aria-label={isRead ? "Marcar capÃ­tulo como nÃ£o lido" : "Marcar capÃ­tulo como lido"}
           className={`inline-flex min-h-12 items-center gap-2 rounded-full border px-6 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
             isRead
               ? "border-accent/50 bg-accent/10 text-accent"
@@ -671,7 +681,7 @@ function Footer({
   return (
     <nav
       className="sticky bottom-0 z-40 border-t border-line bg-paper/90 backdrop-blur"
-      aria-label="Navegação de capítulos"
+      aria-label="NavegaÃ§Ã£o de capÃ­tulos"
     >
       <div className="mx-auto grid w-full max-w-3xl grid-cols-2 gap-2 px-3 py-2">
         <button
@@ -689,7 +699,7 @@ function Footer({
           disabled={!hasNext}
           className="flex h-12 items-center justify-center gap-1 rounded-full text-sm font-medium text-ink transition-colors hover:bg-paper-muted focus-visible:outline-2 focus-visible:outline-accent disabled:pointer-events-none disabled:opacity-35"
         >
-          Próximo <ChevronRight size={16} />
+          PrÃ³ximo <ChevronRight size={16} />
         </button>
       </div>
     </nav>
