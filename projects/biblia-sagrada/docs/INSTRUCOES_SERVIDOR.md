@@ -20,7 +20,9 @@ if ($conns) { $conns | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force
 ## 3. Iniciar o servidor em background
 
 ```powershell
-Start-Process "npm.cmd" -ArgumentList "start" -WorkingDirectory "C:\Users\VCM37\claude-code-gsd-harness\projects\biblia-sagrada" -WindowStyle Hidden
+# Ajuste o nome da pasta do harness se a sua for diferente (ex: claude-code-gsd-harness)
+$proj = Join-Path $HOME "claude-code-gsd-harness-main\projects\biblia-sagrada"
+Start-Process "npm.cmd" -ArgumentList "start" -WorkingDirectory $proj -WindowStyle Hidden
 ```
 
 > Atenção: use `npm.cmd` (não `npm`) no Start-Process do Windows — `npm` resolve como script e falha.

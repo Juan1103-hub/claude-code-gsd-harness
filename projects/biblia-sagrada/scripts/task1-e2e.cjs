@@ -1,8 +1,5 @@
-// E2E ad-hoc — Task 1: troca de tradução (URL v=, localStorage, versículo TB)
-// Padrão da Fase 1 (biblia-e2e.cjs). Executa contra next start (build atual).
-const path = require("path");
-process.env.NODE_PATH = "C:\\Users\\VCM37\\AppData\\Roaming\\npm\\node_modules";
-require("module").Module._initPaths();
+// E2E — Task 1: troca de tradução (URL v=, localStorage, versículo TB)
+// Executa contra next start (build atual). Playwright resolve via node_modules do projeto.
 
 const { chromium } = require("playwright");
 
@@ -34,7 +31,12 @@ function ok(name, cond, extra) {
   await page.goto(`${BASE}/?b=0&c=0&v=tb`, { waitUntil: "networkidle" });
   await page.waitForSelector("h1", { timeout: 15000 });
   const h1tb = await page.textContent("h1");
-  ok("TB: h1 contém Gênesis 1", /Gênesis/.test(h1tb), h1tb);
+  const titleTb = await page.title();
+  ok(
+    "TB: Gn 1 renderizado (title 'Gênesis 1', h1 subtítulo)",
+    /Gênesis 1/.test(titleTb) && /A criação/.test(h1tb),
+    `${titleTb} | h1=${h1tb}`,
+  );
 
   // 2. Body do Gn 1:1 em TB ("No princípio")
   const bodyText = await page.textContent("body");

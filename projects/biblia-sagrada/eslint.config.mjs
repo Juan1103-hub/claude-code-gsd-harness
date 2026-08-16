@@ -5,6 +5,20 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    files: ["scripts/*.cjs"],
+    languageOptions: {
+      globals: {
+        require: "readonly",
+        process: "readonly",
+        console: "readonly",
+        module: "readonly",
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -14,8 +28,6 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "public/sw.js",
     "public/swe-worker*",
-    // E2E ad-hoc em CommonJS (padrão Fase 1, biblia-e2e.cjs) — não faz parte do build TS.
-    "scripts/*.cjs",
   ]),
 ]);
 

@@ -1,4 +1,7 @@
 -- ============================================================================
+-- APPROVAL: 2026-08-16 — Aprovada em docs/DECISIONS.md ("Gate de aprovação
+-- para migrations de superfície compartilhada"). Sem mudança de comportamento.
+-- ============================================================================
 -- Fix: handle_new_user quebrava o sign-in anônimo.
 --
 -- O projeto compartilha o banco com outro app (vendas/PDV) cujo trigger

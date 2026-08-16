@@ -1,6 +1,4 @@
 // Task 2 verify: version-picker mostra 3 traduções
-process.env.NODE_PATH = "C:\\Users\\VCM37\\AppData\\Roaming\\npm\\node_modules";
-require("module").Module._initPaths();
 const { chromium } = require("playwright");
 
 (async () => {

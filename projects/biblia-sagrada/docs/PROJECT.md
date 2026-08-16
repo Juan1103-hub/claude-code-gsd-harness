@@ -1,104 +1,53 @@
 # Projeto: Bíblia Sagrada
 
 ## Identidade do Agente (Você)
-Desenvolvedor Mobile Sênior e Arquiteto de Software com 15 anos de experiência em Android e iOS, especializado em desenvolvimento "offline-first" e UX/UI para leitura e consumo de mídia.
+Desenvolvedor Web/Full-Stack Sênior com foco em PWA "offline-first" e UX/UI para leitura de mídia.
 
 ## Contexto do Aplicativo
-Desenvolver um aplicativo de Bíblia Sagrada para competir com os líderes da Play Store (ex: Mobidic), oferecendo uma experiência completa, gratuita e 100% offline. O acesso à palavra de Deus deve ser garantido em qualquer lugar.
+Aplicativo de Bíblia Sagrada gratuito e **100% offline** (PWA instalável), competindo com os líderes das lojas de apps (ex: Mobidic). O acesso à palavra de Deus deve ser garantido em qualquer lugar.
 
 ## Funcionalidades Principais:
-1.  **Motor de Leitura**: Suporte para múltiplas traduções (ARA, NVI, ARC, KJA, NTLH, NAA) com troca instantânea.
-2.  **Módulo de Áudio**: Player para Devocionais e o comentário bíblico "Rota 66", com suporte a download para ouvir offline.
-3.  **Recursos de Estudo**: Dicionário bíblico integrado, Planos de leitura progressivos e seção "O que a Bíblia diz".
-4.  **Personalização**: Sistema de marcadores de texto em cores, anotações por versículo e hinários.
-5.  **Multimídia**: Integração de estudos em vídeo (linkados ou embarcados).
+1.  **Motor de Leitura**: Múltiplas traduções com troca instantânea e cache offline.
+2.  **Recursos de Estudo**: Rota 66 (link externo oficial RTM), planos de leitura, seção "O que a Bíblia diz" e dicionário.
+3.  **Personalização**: Tema dia/noite, ajuste de fonte e marcadores/notas por versículo.
+4.  **Sincronização (opcional)**: Conta Supabase com auth anônima, outbox local-first e merge por `updatedAt`.
 
 ## Restrições:
-- **Prioridade**: App extremamente rápido no carregamento dos textos.
-- **Interface**: Evitar designs poluídos; focar na legibilidade e no modo noturno.
-- **Custos**: Priorizar tecnologias de código aberto ou com camadas gratuitas generosas (Supabase para sincronização opcional).
-- **Tamanho**: App leve (aproximadamente 45MB).
+- **Prioridade**: Carregamento dos textos extremamente rápido, funcionando offline.
+- **Interface**: Legível, minimalista, com modo noturno.
+- **Custos**: Tecnologias open-source ou com camadas gratuitas generosas (Supabase).
+- **Tamanho**: Bundle inicial leve (traduções grandes sob demanda).
 
-## Stack Tecnológica Sugerida:
-- **Desenvolvimento Multiplataforma**: Flutter (Dart)
-- **Banco de Dados Local**: SQLite (via `sqflite`)
-- **Armazenamento de Mídia**: Sistema de arquivos nativo
-- **Backend/Sincronização (Opcional)**: Supabase
+## Stack Decidida (substitui Flutter — docs/DECISIONS.md, 2026-08-10)
+- **App**: PWA em **Next.js + React + TypeScript + Tailwind**, instalável ("Adicionar à tela inicial") e offline-first via **Service Worker (Serwist)**.
+- **Dados locais**: **IndexedDB** (store `chapters`), dados estáticos em `public/data/` (JSON por livro/tradução + índice `index.json`).
+- **Backend/Sincronização (Opcional)**: **Supabase** (auth anônima + sync local-first via outbox). Chaves em `.env.local` (gitignored); `service_role` nunca no bundle.
+- **Busca**: MiniSearch com índice pré-gerado em `public/data/search/`.
 
-## Arquitetura de Dados (Esquema SQLite):
-- `Translations`
-- `Books`
-- `Verses` (com índices críticos para performance: `idx_verse_lookup`, `idx_chapter_lookup`)
-- `UserHighlights`
-- `UserNotes`
-- `ReadingPlans`
-- `ReadingPlanVerses`
-- `DictionaryEntries`
-- `WhatTheBibleSays`
-- `AudioItems`
-- `VideoItems`
-- `Hymnals`
+## Pipeline de Dados
+- `data/raw/` (gitignored, ~12MB) contém as traduções de origem; `scripts/generate-data.mjs` gera o formato compacto em `public/data/` (`index.json` + 1 JSON por livro/tradução).
+- `scripts/search-build.mjs` gera os índices de busca (MiniSearch) e `scripts/study-build.mjs` os recursos de estudo (dicionário, planos, temas, hinos).
+- `prebuild` garante `generate-data` → `search-build` → `study-build` antes de `next build`.
+- `scripts/search-build.mjs` e `src/lib/search-options.ts` mantêm `SEARCH_OPTIONS` em sincronia — verificar com `npm run check:search`.
 
-## Roadmap de Desenvolvimento:
+## Roadmap de Desenvolvimento (GSD — fases em `.planning/`)
 
-### A. Prototipação (Sprints 1-2)
-1.  **Definição de UI/UX Essencial**: Wireframes e mockups para telas de leitura, navegação, seleção de tradução, modo noturno.
-2.  **Prova de Conceito (PoC) de Carregamento de Texto**:
-    *   SQLite com uma única tradução (ex: Gênesis-Apocalipse da ARA).
-    *   Leitor Flutter que carrega e exibe capítulos de forma ultra-rápida.
-    *   Medição de performance.
-3.  **Mecanismo de Troca de Capítulos/Livros**.
-4.  **Integração Inicial de Cores/Fontes**: Modos dia/noite e ajuste básico de tamanho de fonte.
+### Fase 1 — Fundação de Dados e Leitura (concluída)
+- Pipeline de dados, precache de traduções, leitor com troca instantânea de versão, busca, modo noturno, PWA instalável.
 
-### B. MVP (Mínimo Produto Viável) (Sprints 3-6)
-1.  **Engine de Leitura Central**:
-    *   Suporte para 2-3 traduções (ARA, NVI).
-    *   Navegação intuitiva por livro, capítulo e versículo.
-    *   Busca simples por palavra-chave.
-    *   Ajustes de fonte e temas.
-2.  **Personalização Básica**:
-    *   Marcadores de texto (1-2 cores).
-    *   Criação/visualização de anotações por versículo.
-3.  **Módulo de Áudio (Streaming)**:
-    *   Player para Devocionais (streaming).
-    *   Controles básicos.
-4.  **Estratégia Offline Inicial**:
-    *   Pré-empacotamento de 1-2 traduções no instalador.
-    *   Gerenciamento de dados SQLite para texto.
-    *   Otimização do tamanho do APK/IPA (alvo 45MB).
-5.  **Interface de Usuário (Refinamento)**: Legibilidade, design minimalista.
+### Fase 2 — Estudo e Personalização (em andamento)
+- Rota 66, planos de leitura, "O que a Bíblia diz", dicionário, marcadores/notas, download de traduções sob demanda (BLIVRE, NTLH, ACF, ARC; ALM1911 + TB embarcadas).
 
-### C. Funcionalidades Avançadas (Sprints 7 em diante)
-1.  **Engine de Leitura Completa**:
-    *   Todas as traduções (ARA, NVI, ARC, KJA, NTLH, NAA).
-    *   Troca instantânea entre traduções (com cache).
-    *   Busca avançada.
-    *   Comparação de versículos.
-2.  **Módulo de Áudio Completo**:
-    *   Download Manager para áudios (Devocionais, Rota 66) offline.
-    *   Controles avançados (velocidade, timer).
-    *   Gerenciamento de espaço.
-3.  **Recursos de Estudo**:
-    *   Dicionário Bíblico.
-    *   Planos de Leitura Progressivos.
-    *   Seção "O que a Bíblia diz".
-4.  **Personalização Avançada**:
-    *   Múltiplas cores para marcadores.
-    *   Anotações ricas.
-    *   Integração de Hinários.
-    *   **Sincronização Opcional (Supabase)**.
-5.  **Multimídia**:
-    *   Integração de estudos em vídeo (links externos/embed).
-6.  **Otimização Contínua**.
+### Fase 3 — Multimídia e Sincronização
+- Sincronização opcional via Supabase (auth anônima, outbox, merge LWW) e integração da Rota 66.
 
 ## Estratégia Offline Detalhada:
-1.  **Gerenciamento de Texto**:
-    *   Bundle Inicial Compacto (1-2 traduções SQLite otimizadas).
-    *   Downloads de Traduções Sob Demanda (arquivos SQLite compactados via CDN/Supabase Storage).
-    *   Cache Inteligente e Indexação Eficiente SQLite.
-2.  **Gerenciamento de Áudio**:
-    *   Zero Áudio no Bundle Inicial.
-    *   Streaming como Padrão.
-    *   Download Explícito para Offline (formatos eficientes, bitrates otimizados).
-    *   Gerenciamento de Espaço pelo Usuário.
-3.  **Otimização Geral do App Size**: Assets otimizados, Tree Shaking, dependências leves.
+1.  **Dados**:
+    - Traduções embarcadas (domínio público): **ALM1911** e **TB** — no precache do Service Worker.
+    - Traduções sob demanda: **BLIVRE**, **NTLH**, **ACF**, **ARC** — no build, fora do precache; baixadas para IndexedDB e invalidadas por `dataVersion`.
+    - Cache runtime em IndexedDB (store `chapters`, keyPath `[version, book, chapter]`), carga sob demanda com fetch único por livro.
+2.  **Áudio**: Rota 66 como link externo para o podcast oficial da RTM (sem redistribuição).
+3.  **Otimização geral do app**: Precache seletivo, tree shaking, dependências leves.
+
+## Verificação
+- `npm run lint` (inclui `scripts/*.cjs`), `npm run check:search`, `npm run check:migrations`, `npm run build`, E2E: `npm run e2e` contra `next start`.

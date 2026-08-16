@@ -1,5 +1,15 @@
 # Decisões de Projeto - Bíblia Sagrada
 
+## 2026-08-16 - Gate de aprovação para migrations de superfície compartilhada
+- **Decisão**: Toda migration que toque a superfície compartilhada do Supabase (`public.users`, `handle_new_user`, triggers `security definer` — banco compartilhado com o app vendas/PDV) exige marcador `-- APPROVAL:` no cabeçalho do arquivo e registro nesta ledger antes de aplicar. Verificação retida em `scripts/check-migration-approval.mjs` (`npm run check:migrations`).
+- **Justificativa**: Uma migration mal aplicada no banco compartilhado afeta consumidores além deste app (risco de aprovação implícita).
+- **Status**: Implementado; `0003_fix_handle_new_user_anonymous.sql` marcada como aprovada (sem mudança de comportamento).
+
+## 2026-08-16 - Baseline de janela de validação (learning capture)
+- **Decisão**: Registrar a rodada do better-harness de 2026-08-16 (relatório em `.claude/better-harness/2026-08-16/091342-biblia-sagrada/`) como **baseline (antes)** das correções: scores 45/40/35/25/35 e 7 achados. Compromisso de registrar uma **janela posterior comparável** (após as próximas entregas de milestone) medindo um resultado antes/depois para provar reuso de melhoria.
+- **Justificativa**: Melhorias declaradas sem evidência de janela posterior não comprovam reuso (Learning Capture).
+- **Status**: Baseline registrado; janela posterior pendente.
+
 ## 2026-08-12 - ARC adicionada como tradução baixável (decisão do usuário, ALERTA DE LICENÇA)
 - **Decisão**: Adicionar **Almeida Revista e Corrigida (ARC)** como 6ª tradução, baixável sob demanda (padrão BLIVRE/NTLH/ACF: embarcada no build, FORA do precache, baixa para IndexedDB). Fonte: `inst/json/ARC.json` do repositório `damarals/biblias` (MIT) → `data/raw/ARC.json` (66 livros, 31.105 versículos). Abreviação `1Tn` → `1Tm` (padrão canônico do projeto).
 - **⚠️ ALERTA DE LICENÇA**: A ARC é **© Sociedade Bíblica do Brasil (SBB) — direitos reservados** (revisão 1995/2009). REQUIREMENTS.md originalmente a marcava como "não utilizar". Decisão explícita do usuário (produto), registrada aqui para ciência do risco legal ao publicar/distribuir o app — mesmo padrão da NTLH (© SBB) e ACF (© SBTB). Fora do precache; acesso condicionado ao download manual.

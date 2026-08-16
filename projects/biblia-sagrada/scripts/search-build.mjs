@@ -41,10 +41,12 @@ const SEARCH_OPTIONS = {
       "se",
       "com",
     ]);
-    if (STOP.has(normalized) || !normalized) return null;
+    if (STOP.has(normalized) || normalized.length < 2) return null;
     return normalized;
   },
 };
+
+export { SEARCH_OPTIONS };
 
 async function buildSearchIndex(versionCode) {
   const versionDir = path.join(OUT_DIR, versionCode);
@@ -105,7 +107,18 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Roda o build apenas quando executado diretamente; quando importado (ex.:
+// check de paridade) expõe só SEARCH_OPTIONS sem efeitos colaterais.
+// No Windows a comparação de caminho ignora maiúsculas/minúsculas.
+const isDirectRun =
+  process.argv[1] &&
+  (process.platform === "win32"
+    ? fileURLToPath(import.meta.url).toLowerCase() ===
+      path.resolve(process.argv[1]).toLowerCase()
+    : fileURLToPath(import.meta.url) === path.resolve(process.argv[1]));
+if (isDirectRun) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

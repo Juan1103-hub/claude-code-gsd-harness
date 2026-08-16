@@ -8,7 +8,10 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "data": "node scripts/generate-data.mjs"
+    "data": "node scripts/generate-data.mjs",
+    "e2e": "node scripts/task1-e2e.cjs && node scripts/task2-verify.cjs",
+    "check:search": "node scripts/check-search-parity.mjs",
+    "check:migrations": "node scripts/check-migration-approval.mjs"
   },
   "dependencies": {
     "@serwist/next": "^9.5.12",
@@ -29,6 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "playwright": "^1.62.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

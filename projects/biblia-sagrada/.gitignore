@@ -53,3 +53,6 @@ public/swe-worker*
 
 .vercel
 .env*
+
+# harness: relatorios/artefatos do better-harness (regeneraveis por rodada)
+/.claude/
