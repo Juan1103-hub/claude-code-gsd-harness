@@ -31,3 +31,7 @@ Thumbs.db
 # GSD (arquivos locais de sessão, se algum projeto instalar localmente em vez de global)
 .gsd-runtime
 .playwright-mcp/
+
+# Ferramentas / deploy locais
+.kiro/
+.vercel/
